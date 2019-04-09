@@ -1,0 +1,75 @@
+Turbo Assembler	 Version 4.1	    04/09/19 15:22:28	    Page 1
+proy.ASM
+
+
+
+      1				     ;------------------------------------------------------------------------------
+      2
+      3	0000			     Pila Segment
+      4	0000  FFFF*(??)		      db 0FFFFh	Dup (?)
+      5	FFFF			     Pila EndS
+      6
+      7				     ;------------------------------------------------------------------------------
+      8
+      9	0000			     Datos Segment
+     10	0000  00			     num1 db 0
+     11	0001  00			     num2 db 0
+     12	0002  00 24			     resp db 0,"$"
+     13	0004  0A 0D 44 69 67 69	74+	     p1	db 10, 13, "Digite primer numero: ", "$"
+     14	      65 20 70 72 69 6D	65+
+     15	      72 20 6E 75 6D 65	72+
+     16	      6F 3A 20 24
+     17	001D  0A 0D 44 69 67 69	74+	     p2	db 10, 13, "Digite segundo numero: ", "$"
+     18	      65 20 73 65 67 75	6E+
+     19	      64 6F 20 6E 75 6D	65+
+     20	      72 6F 3A 20 24
+     21	0037  0A 0D 52 65 73 75	6C+	     r1	db 10, 13, "Resultado: ", "$"
+     22	      74 61 64 6F 3A 20	24
+     23
+     24	0045			     Datos EndS
+     25
+     26				     ;------------------------------------------------------------------------------
+     27
+     28	0000			     Codigo Segment
+     29				     ASSUME CS:Codigo, DS:Datos
+     30
+     31	0000			     Inicio:
+     32	0000  33 C0			     xor ax,ax
+     33	0002  B8 0000s			     mov ax,datos
+     34	0005  8E D8			     mov ds,ax
+     35
+     36	0007  B8 4C00			     mov ax,4c00h
+     37	000A  CD 21			     int 21h
+     38
+     39	000C			     Codigo EndS
+     40					     End Inicio
+Turbo Assembler	 Version 4.1	    04/09/19 15:22:28	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "04/09/19"
+??FILENAME			  Text	 "proy	  "
+??TIME				  Text	 "15:22:28"
+??VERSION			  Number 040A
+@CPU				  Text	 0101H
+@CURSEG				  Text	 CODIGO
+@FILENAME			  Text	 PROY
+@WORDSIZE			  Text	 2
+INICIO				  Near	 CODIGO:0000
+NUM1				  Byte	 DATOS:0000
+NUM2				  Byte	 DATOS:0001
+P1				  Byte	 DATOS:0004
+P2				  Byte	 DATOS:001D
+R1				  Byte	 DATOS:0037
+RESP				  Byte	 DATOS:0002
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+CODIGO				  16  000C Para	  none
+DATOS				  16  0045 Para	  none
+PILA				  16  FFFF Para	  none
+
