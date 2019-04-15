@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    04/09/19 15:22:28	    Page 1
+Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 1
 proy.ASM
 
 
@@ -12,38 +12,203 @@ proy.ASM
       7				     ;------------------------------------------------------------------------------
       8
       9	0000			     Datos Segment
-     10	0000  00			     num1 db 0
-     11	0001  00			     num2 db 0
-     12	0002  00 24			     resp db 0,"$"
-     13	0004  0A 0D 44 69 67 69	74+	     p1	db 10, 13, "Digite primer numero: ", "$"
-     14	      65 20 70 72 69 6D	65+
-     15	      72 20 6E 75 6D 65	72+
-     16	      6F 3A 20 24
-     17	001D  0A 0D 44 69 67 69	74+	     p2	db 10, 13, "Digite segundo numero: ", "$"
-     18	      65 20 73 65 67 75	6E+
-     19	      64 6F 20 6E 75 6D	65+
-     20	      72 6F 3A 20 24
-     21	0037  0A 0D 52 65 73 75	6C+	     r1	db 10, 13, "Resultado: ", "$"
-     22	      74 61 64 6F 3A 20	24
-     23
-     24	0045			     Datos EndS
-     25
-     26				     ;------------------------------------------------------------------------------
+     10	0000  74 65 73 74 2E 62	6D+	     filename db 'test.bmp',0
+     11	      70 00
+     12
+     13	0009  ????			     filehandle	dw ?
+     14
+     15	000B  36*(00)			     Header db 54 dup (0)
+     16
+     17	0041  0400*(00)			     Palette db	256*4 dup (0)
+     18
+     19	0441  0140*(00)			     ScrLine db	320 dup	(0)
+     20
+     21	0581  45 72 72 6F 72 0D	0A+	     ErrorMsg db 'Error', 13, 10,'$'
+     22	      24
+     23	0589			     Datos EndS
+     24
+     25	0000			     Codigo Segment
+     26				     Assume CS:Codigo, DS:Datos
      27
-     28	0000			     Codigo Segment
-     29				     ASSUME CS:Codigo, DS:Datos
-     30
-     31	0000			     Inicio:
-     32	0000  33 C0			     xor ax,ax
-     33	0002  B8 0000s			     mov ax,datos
-     34	0005  8E D8			     mov ds,ax
-     35
-     36	0007  B8 4C00			     mov ax,4c00h
-     37	000A  CD 21			     int 21h
-     38
-     39	000C			     Codigo EndS
-     40					     End Inicio
-Turbo Assembler	 Version 4.1	    04/09/19 15:22:28	    Page 2
+     28	0000			     OpenFile proc
+     29	0000  B4 3D			 mov ah, 3Dh
+     30	0002  32 C0			 xor al, al
+     31	0004  BA 0000r			 mov dx, offset	filename
+     32	0007  CD 21			 int 21h
+     33
+     34	0009  72 04			 jc openerror
+     35	000B  A3 0009r			 mov [filehandle], ax
+     36	000E  C3			 ret
+     37
+     38	000F				 openerror:
+     39	000F  BA 0581r			 mov dx, offset	ErrorMsg
+     40	0012  B4 09			 mov ah, 9h
+     41	0014  CD 21			 int 21h
+     42	0016  C3			 ret
+     43	0017			     endp OpenFile
+     44
+     45	0017			     ReadHeader	proc
+     46
+     47					 ; Read	BMP file header, 54 bytes
+     48
+     49	0017  B4 3F			 mov ah,3fh
+     50	0019  8B 1E 0009r		 mov bx, [filehandle]
+     51	001D  B9 0036			 mov cx,54
+     52	0020  BA 000Br			 mov dx,offset Header
+     53	0023  CD 21			 int 21h
+     54	0025  C3			 ret
+     55	0026			     endp ReadHeader
+     56
+     57	0026			     ReadPalette proc
+Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 2
+proy.ASM
+
+
+
+     58
+     59					 ; Read	BMP file color palette,	256 colors * 4 bytes (400h)
+     60
+     61	0026  B4 3F			 mov ah,3fh
+     62	0028  B9 0400			 mov cx,400h
+     63	002B  BA 0041r			 mov dx,offset Palette
+     64	002E  CD 21			 int 21h
+     65	0030  C3			 ret
+     66	0031			     endp ReadPalette
+     67
+     68	0031			     CopyPal proc
+     69
+     70					 ; Copy	the colors palette to the video	memory
+     71					 ; The number of the first color should	be sent	to port	3C8h
+     72					 ; The palette is sent to port 3C9h
+     73
+     74	0031  BE 0041r			 mov si,offset Palette
+     75	0034  B9 0100			 mov cx,256
+     76	0037  BA 03C8			 mov dx,3C8h
+     77	003A  B0 00			 mov al,0
+     78
+     79					 ; Copy	starting color to port 3C8h
+     80
+     81	003C  EE			 out dx,al
+     82
+     83					 ; Copy	palette	itself to port 3C9h
+     84
+     85	003D  42			 inc dx
+     86	003E				 PalLoop:
+     87
+     88					 ; Note: Colors	in a BMP file are saved	as BGR values rather than RGB.
+     89
+     90	003E  8A 44 02			 mov al,[si+2] ; Get red value.
+     91	0041  D0 E8 D0 E8		 shr al,2 ; Max. is 255, but video palette maximal
+     92
+     93					 ; value is 63.	Therefore dividing by 4.
+     94
+     95	0045  EE			 out dx,al ; Send it.
+     96	0046  8A 44 01			 mov al,[si+1] ; Get green value.
+     97	0049  D0 E8 D0 E8		 shr al,2
+     98	004D  EE			 out dx,al ; Send it.
+     99	004E  8A 04			 mov al,[si] ; Get blue	value.
+    100	0050  D0 E8 D0 E8		 shr al,2
+    101	0054  EE			 out dx,al ; Send it.
+    102	0055  83 C6 04			 add si,4 ; Point to next color.
+    103
+    104					 ; (There is a null chr. after every color.)
+    105
+    106	0058  E2 E4			 loop PalLoop
+    107	005A  C3			 ret
+    108	005B			     endp CopyPal
+    109
+    110	005B			     CopyBitmap	proc
+    111
+    112					 ; BMP graphics	are saved upside-down.
+    113					 ; Read	the graphic line by line (200 lines in VGA format),
+    114					 ; displaying the lines	from bottom to top.
+Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 3
+proy.ASM
+
+
+
+    115
+    116	005B  B8 A000			 mov ax, 0A000h
+    117	005E  8E C0			 mov es, ax
+    118	0060  B9 00C8			 mov cx,200
+    119	0063				 PrintBMPLoop:
+    120	0063  51			 push cx
+    121
+    122					 ; di =	cx*320,	point to the correct screen line
+    123
+    124	0064  8B F9			 mov di,cx
+    125	0066  D1 E1 D1 E1 D1 E1	D1+	 shl cx,6
+    126	      E1 D1 E1 D1 E1
+    127	0072  D1 E7 D1 E7 D1 E7	D1+	 shl di,8
+    128	      E7 D1 E7 D1 E7 D1	E7+
+    129	      D1 E7
+    130	0082  03 F9			 add di,cx
+    131
+    132					 ; Read	one line
+    133
+    134	0084  B4 3F			 mov ah,3fh
+    135	0086  B9 0140			 mov cx,320
+    136	0089  BA 0441r			 mov dx,offset ScrLine
+    137	008C  CD 21			 int 21h
+    138
+    139					 ; Copy	one line into video memory
+    140
+    141	008E  FC			 cld
+    142
+    143					 ; Clear direction flag, for movsb
+    144
+    145	008F  B9 0140			 mov cx,320
+    146	0092  BE 0441r			 mov si,offset ScrLine
+    147	0095  F3> A4			 rep movsb
+    148
+    149					 ; Copy	line to	the screen
+    150					 ;rep movsb is same as the following code:
+    151					 ;mov es:di, ds:si
+    152					 ;inc si
+    153					 ;inc di
+    154					 ;dec cx
+    155					 ;loop until cx=0
+    156
+    157	0097  59			 pop cx
+    158	0098  E2 C9			 loop PrintBMPLoop
+    159	009A  C3			 ret
+    160	009B			     endp CopyBitmap
+    161
+    162	009B			     Inicio:
+    163	009B  B8 0000s			     mov ax, datos
+    164	009E  8E D8			     mov ds, ax
+    165
+    166						 ; Graphic mode
+    167	00A0  B8 0013			 mov ax, 13h
+    168	00A3  CD 10			 int 10h
+    169
+    170					 ; Process BMP file
+    171	00A5  E8 FF58			 call OpenFile
+Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 4
+proy.ASM
+
+
+
+    172	00A8  E8 FF6C			 call ReadHeader
+    173	00AB  E8 FF78			 call ReadPalette
+    174	00AE  E8 FF80			 call CopyPal
+    175	00B1  E8 FFA7			 call CopyBitmap
+    176
+    177					 ; Wait	for key	press
+    178	00B4  B4 01			 mov ah,1
+    179
+    180	00B6  CD 21			 int 21h
+    181					 ; Back	to text	mode
+    182	00B8  B4 00			 mov ah, 0
+    183	00BA  B0 02			 mov al, 2
+    184	00BC  CD 10			 int 10h
+    185
+    186	00BE  B8 4C00			 mov ax, 4C00h
+    187	00C1  CD 21			 int 21h
+    188
+    189	00C3			     Codigo EndS
+    190					     End Inicio
+Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 5
 Symbol Table
 
 
@@ -51,25 +216,33 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "04/09/19"
+??DATE				  Text	 "04/15/19"
 ??FILENAME			  Text	 "proy	  "
-??TIME				  Text	 "15:22:28"
+??TIME				  Text	 "08:44:24"
 ??VERSION			  Number 040A
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CODIGO
 @FILENAME			  Text	 PROY
 @WORDSIZE			  Text	 2
-INICIO				  Near	 CODIGO:0000
-NUM1				  Byte	 DATOS:0000
-NUM2				  Byte	 DATOS:0001
-P1				  Byte	 DATOS:0004
-P2				  Byte	 DATOS:001D
-R1				  Byte	 DATOS:0037
-RESP				  Byte	 DATOS:0002
+COPYBITMAP			  Near	 CODIGO:005B
+COPYPAL				  Near	 CODIGO:0031
+ERRORMSG			  Byte	 DATOS:0581
+FILEHANDLE			  Word	 DATOS:0009
+FILENAME			  Byte	 DATOS:0000
+HEADER				  Byte	 DATOS:000B
+INICIO				  Near	 CODIGO:009B
+OPENERROR			  Near	 CODIGO:000F
+OPENFILE			  Near	 CODIGO:0000
+PALETTE				  Byte	 DATOS:0041
+PALLOOP				  Near	 CODIGO:003E
+PRINTBMPLOOP			  Near	 CODIGO:0063
+READHEADER			  Near	 CODIGO:0017
+READPALETTE			  Near	 CODIGO:0026
+SCRLINE				  Byte	 DATOS:0441
 
 Groups & Segments		  Bit Size Align  Combine Class
 
-CODIGO				  16  000C Para	  none
-DATOS				  16  0045 Para	  none
+CODIGO				  16  00C3 Para	  none
+DATOS				  16  0589 Para	  none
 PILA				  16  FFFF Para	  none
 

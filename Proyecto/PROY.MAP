@@ -2,9 +2,9 @@
  Start  Stop   Length Name               Class
 
  00000H 0FFFEH 0FFFFH PILA               
- 10000H 10044H 00045H DATOS              
- 10050H 1005BH 0000CH CODIGO             
+ 10000H 10588H 00589H DATOS              
+ 10590H 10652H 000C3H CODIGO             
 
-Program entry point at 1005:0000
+Program entry point at 1059:009B
 Warning: No stack
 
