@@ -8,7 +8,7 @@ Pila EndS
 ;------------------------------------------------------------------------------
 
 Datos Segment
-	filename db 'star.bmp',0
+	filename db 'perico.bmp',0
 	clave db 'hola'
 	
 	paleta 	db 00h, 04h, 02h, 06h, 01h, 05h, 03h, 07h, 08h, 0Ch, 0Ah, 0Eh, 9h, 0Dh, 0Bh, 0Fh
@@ -150,12 +150,11 @@ endp pintar
 Inicio:
 	mov ax, datos
 	mov ds, ax
+
 	
-	call
-	
-	;call openFile
-	;call ReadHeader
-	;call pintar
+	call openFile
+	call ReadHeader
+	call pintar
 
 final:
 	mov ah,3eh
