@@ -7,15 +7,15 @@ Pila EndS
 ;------------------------------------------------------------------------------
 
 Datos Segment
-	filename db 'test.bmp',0
+	filename db 'leia.bmp',0
 
 	filehandle dw ?
 
-	Header db 54 dup (0)
+	Header db 118 dup (0)
+	Header2 db 640 dup (0)
 
-	Palette db 256*4 dup (0)
-
-	ScrLine db 320 dup (0)
+	ancho dw ?
+	largo dw ?
 
 	ErrorMsg db 'Error', 13, 10,'$'
 Datos EndS
@@ -41,145 +41,90 @@ OpenFile proc
 endp OpenFile
 
 ReadHeader proc
-
 	; Read BMP file header, 54 bytes
-
 	mov ah,3fh
-	mov bx, [filehandle]
-	mov cx,54
+	mov bx,[filehandle]
+	mov cx,118
 	mov dx,offset Header
 	int 21h
+	
+	push ax
+	mov ah, [Header]+19
+	mov al, [Header]+18
+	mov ancho, ax
+	
+	mov ah, [Header]+23
+	mov al, [Header]+22
+	mov largo, ax
+	pop ax
+	
 	ret
 endp ReadHeader
 
-ReadPalette proc
+pintar proc
+	mov ah, 00h
+	mov al, 12h
+	int 10h 
+	mov dx, 1E0H
+	push dx
+ploop:
 
-	; Read BMP file color palette, 256 colors * 4 bytes (400h)
-
-	mov ah,3fh
-	mov cx,400h
-	mov dx,offset Palette
+	mov ax,3f00h
+	mov bx,[filehandle]
+	mov cx,140h
+	mov dx,offset Header2
 	int 21h
-	ret
-endp ReadPalette
-
-CopyPal proc
-
-	; Copy the colors palette to the video memory
-	; The number of the first color should be sent to port 3C8h
-	; The palette is sent to port 3C9h
-
-	mov si,offset Palette
-	mov cx,256
-	mov dx,3C8h
-	mov al,0
-
-	; Copy starting color to port 3C8h
-
-	out dx,al
-
-	; Copy palette itself to port 3C9h
-
-	inc dx
-	PalLoop:
-
-	; Note: Colors in a BMP file are saved as BGR values rather than RGB.
-
-	mov al,[si+2] ; Get red value.
-	shr al,2 ; Max. is 255, but video palette maximal
-
-	; value is 63. Therefore dividing by 4.
-
-	out dx,al ; Send it.
-	mov al,[si+1] ; Get green value.
-	shr al,2
-	out dx,al ; Send it.
-	mov al,[si] ; Get blue value.
-	shr al,2
-	out dx,al ; Send it.
-	add si,4 ; Point to next color.
-
-	; (There is a null chr. after every color.)
-
-	loop PalLoop
-	ret
-endp CopyPal
-
-CopyBitmap proc
-
-	; BMP graphics are saved upside-down.
-	; Read the graphic line by line (200 lines in VGA format),
-	; displaying the lines from bottom to top.
-
-	mov ax, 0A000h
-	mov es, ax
-	mov cx,200
-	PrintBMPLoop:
-	push cx
-
-	; di = cx*320, point to the correct screen line
-
-	mov di,cx
-	shl cx,6
-	shl di,8
-	add di,cx
-
-	; Read one line
-
-	mov ah,3fh
-	mov cx,320
-	mov dx,offset ScrLine
-	int 21h
-
-	; Copy one line into video memory
-
-	cld 
-
-	; Clear direction flag, for movsb
-
-	mov cx,320
-	mov si,offset ScrLine
-	rep movsb 
-
-	; Copy line to the screen
-	;rep movsb is same as the following code:
-	;mov es:di, ds:si
-	;inc si
-	;inc di
-	;dec cx
-	;loop until cx=0
-
-	pop cx
-	loop PrintBMPLoop
-	ret
-endp CopyBitmap
+	lea si, [header2]
+	pop dx
+	cmp dx, 0
+	jz final
+	mov cx, 0
+	sloop:
+		cmp cx, 280h
+		jz floop
+		mov al, byte ptr [si]
+		mov ah, byte ptr [si]
+		inc si
+		and al, 00001111b
+		and ah, 11110000b
+		rol Ah, 4
+		mov bx, ax
+		;---------
+		xor ax,ax
+		mov ah, 0Ch
+		mov al, bh; color
+		mov bh, 0
+		int 10h
+		inc cx
+		mov ah, 0Ch
+		mov al, bl; color
+		mov bh, 0
+		int 10h
+		inc cx
+		;---------
+		jmp sloop
+floop:
+	dec dx
+	push dx
+	jmp ploop
+endp pintar
 
 Inicio:
 	mov ax, datos
 	mov ds, ax
-
-	; Graphic mode
-	mov ax, 13h
-	int 10h
-
-	; Process BMP file
-	call OpenFile
+	
+	call openFile
 	call ReadHeader
-	call ReadPalette
-	call CopyPal
-	call CopyBitmap
+	call pintar
 
-	; Wait for key press
-	mov ah,1
-
-	int 21h
-	; Back to text mode
-	mov ah, 0
-	mov al, 2
+final:
+	mov ah,10h
+	int 16h
+	
+	mov ax,0003h
 	int 10h
-
+	
 	mov ax, 4C00h
-	int 21h       
-
+	int 21h
 Codigo EndS
 	End Inicio

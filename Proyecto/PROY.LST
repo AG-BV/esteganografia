@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 1
+Turbo Assembler	 Version 4.1	    04/17/19 22:27:36	    Page 1
 proy.ASM
 
 
@@ -12,203 +12,141 @@ proy.ASM
       7				     ;------------------------------------------------------------------------------
       8
       9	0000			     Datos Segment
-     10	0000  74 65 73 74 2E 62	6D+	     filename db 'test.bmp',0
+     10	0000  6C 65 69 61 2E 62	6D+	     filename db 'leia.bmp',0
      11	      70 00
      12
      13	0009  ????			     filehandle	dw ?
      14
-     15	000B  36*(00)			     Header db 54 dup (0)
-     16
-     17	0041  0400*(00)			     Palette db	256*4 dup (0)
-     18
-     19	0441  0140*(00)			     ScrLine db	320 dup	(0)
+     15	000B  76*(00)			     Header db 118 dup (0)
+     16	0081  0280*(00)			     Header2 db	640 dup	(0)
+     17
+     18	0301  ????			     ancho dw ?
+     19	0303  ????			     largo dw ?
      20
-     21	0581  45 72 72 6F 72 0D	0A+	     ErrorMsg db 'Error', 13, 10,'$'
+     21	0305  45 72 72 6F 72 0D	0A+	     ErrorMsg db 'Error', 13, 10,'$'
      22	      24
-     23	0589			     Datos EndS
+     23	030D			     Datos EndS
      24
      25	0000			     Codigo Segment
      26				     Assume CS:Codigo, DS:Datos
      27
      28	0000			     OpenFile proc
-     29	0000  B4 3D			 mov ah, 3Dh
-     30	0002  32 C0			 xor al, al
-     31	0004  BA 0000r			 mov dx, offset	filename
-     32	0007  CD 21			 int 21h
+     29	0000  B4 3D			     mov ah, 3Dh
+     30	0002  32 C0			     xor al, al
+     31	0004  BA 0000r			     mov dx, offset filename
+     32	0007  CD 21			     int 21h
      33
-     34	0009  72 04			 jc openerror
-     35	000B  A3 0009r			 mov [filehandle], ax
-     36	000E  C3			 ret
+     34	0009  72 04			     jc	openerror
+     35	000B  A3 0009r			     mov [filehandle], ax
+     36	000E  C3			     ret
      37
-     38	000F				 openerror:
-     39	000F  BA 0581r			 mov dx, offset	ErrorMsg
-     40	0012  B4 09			 mov ah, 9h
-     41	0014  CD 21			 int 21h
-     42	0016  C3			 ret
+     38	000F				     openerror:
+     39	000F  BA 0305r			     mov dx, offset ErrorMsg
+     40	0012  B4 09			     mov ah, 9h
+     41	0014  CD 21			     int 21h
+     42	0016  C3			     ret
      43	0017			     endp OpenFile
      44
      45	0017			     ReadHeader	proc
-     46
-     47					 ; Read	BMP file header, 54 bytes
-     48
-     49	0017  B4 3F			 mov ah,3fh
-     50	0019  8B 1E 0009r		 mov bx, [filehandle]
-     51	001D  B9 0036			 mov cx,54
-     52	0020  BA 000Br			 mov dx,offset Header
-     53	0023  CD 21			 int 21h
-     54	0025  C3			 ret
-     55	0026			     endp ReadHeader
-     56
-     57	0026			     ReadPalette proc
-Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 2
+     46					     ; Read BMP	file header, 54	bytes
+     47	0017  B4 3F			     mov ah,3fh
+     48	0019  8B 1E 0009r		     mov bx,[filehandle]
+     49	001D  B9 0076			     mov cx,118
+     50	0020  BA 000Br			     mov dx,offset Header
+     51	0023  CD 21			     int 21h
+     52
+     53	0025  50			     push ax
+     54	0026  8A 26 001Er		     mov ah, [Header]+19
+     55	002A  A0 001Dr			     mov al, [Header]+18
+     56	002D  A3 0301r			     mov ancho,	ax
+     57
+Turbo Assembler	 Version 4.1	    04/17/19 22:27:36	    Page 2
 proy.ASM
 
 
 
-     58
-     59					 ; Read	BMP file color palette,	256 colors * 4 bytes (400h)
-     60
-     61	0026  B4 3F			 mov ah,3fh
-     62	0028  B9 0400			 mov cx,400h
-     63	002B  BA 0041r			 mov dx,offset Palette
-     64	002E  CD 21			 int 21h
-     65	0030  C3			 ret
-     66	0031			     endp ReadPalette
-     67
-     68	0031			     CopyPal proc
-     69
-     70					 ; Copy	the colors palette to the video	memory
-     71					 ; The number of the first color should	be sent	to port	3C8h
-     72					 ; The palette is sent to port 3C9h
+     58	0030  8A 26 0022r		     mov ah, [Header]+23
+     59	0034  A0 0021r			     mov al, [Header]+22
+     60	0037  A3 0303r			     mov largo,	ax
+     61	003A  58			     pop ax
+     62
+     63	003B  C3			     ret
+     64	003C			     endp ReadHeader
+     65
+     66	003C			     pintar proc
+     67	003C  B4 00			     mov ah, 00h
+     68	003E  B0 12			     mov al, 12h
+     69	0040  CD 10			     int 10h
+     70	0042  BA 01E0			     mov dx, 1E0H
+     71	0045  52			     push dx
+     72	0046			     ploop:
      73
-     74	0031  BE 0041r			 mov si,offset Palette
-     75	0034  B9 0100			 mov cx,256
-     76	0037  BA 03C8			 mov dx,3C8h
-     77	003A  B0 00			 mov al,0
-     78
-     79					 ; Copy	starting color to port 3C8h
-     80
-     81	003C  EE			 out dx,al
-     82
-     83					 ; Copy	palette	itself to port 3C9h
-     84
-     85	003D  42			 inc dx
-     86	003E				 PalLoop:
-     87
-     88					 ; Note: Colors	in a BMP file are saved	as BGR values rather than RGB.
-     89
-     90	003E  8A 44 02			 mov al,[si+2] ; Get red value.
-     91	0041  D0 E8 D0 E8		 shr al,2 ; Max. is 255, but video palette maximal
-     92
-     93					 ; value is 63.	Therefore dividing by 4.
-     94
-     95	0045  EE			 out dx,al ; Send it.
-     96	0046  8A 44 01			 mov al,[si+1] ; Get green value.
-     97	0049  D0 E8 D0 E8		 shr al,2
-     98	004D  EE			 out dx,al ; Send it.
-     99	004E  8A 04			 mov al,[si] ; Get blue	value.
-    100	0050  D0 E8 D0 E8		 shr al,2
-    101	0054  EE			 out dx,al ; Send it.
-    102	0055  83 C6 04			 add si,4 ; Point to next color.
-    103
-    104					 ; (There is a null chr. after every color.)
-    105
-    106	0058  E2 E4			 loop PalLoop
-    107	005A  C3			 ret
-    108	005B			     endp CopyPal
-    109
-    110	005B			     CopyBitmap	proc
-    111
-    112					 ; BMP graphics	are saved upside-down.
-    113					 ; Read	the graphic line by line (200 lines in VGA format),
-    114					 ; displaying the lines	from bottom to top.
-Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 3
+     74	0046  B8 3F00			     mov ax,3f00h
+     75	0049  8B 1E 0009r		     mov bx,[filehandle]
+     76	004D  B9 0140			     mov cx,140h
+     77	0050  BA 0081r			     mov dx,offset Header2
+     78	0053  CD 21			     int 21h
+     79	0055  BE 0081r			     lea si, [header2]
+     80	0058  5A			     pop dx
+     81	0059  83 FA 00			     cmp dx, 0
+     82	005C  74 45			     jz	final
+     83	005E  B9 0000			     mov cx, 0
+     84	0061				     sloop:
+     85	0061  81 F9 0280			     cmp cx, 280h
+     86	0065  74 2A				     jz	floop
+     87	0067  8A 04				     mov al, byte ptr [si]
+     88	0069  8A 24				     mov ah, byte ptr [si]
+     89	006B  46				     inc si
+     90	006C  24 0F				     and al, 00001111b
+     91	006E  80 E4 F0				     and ah, 11110000b
+     92	0071  D0 C4 D0 C4 D0 C4	D0+		     rol Ah, 4
+     93	      C4
+     94	0079  8B D8				     mov bx, ax
+     95						     ;---------
+     96	007B  33 C0				     xor ax,ax
+     97	007D  B4 0C				     mov ah, 0Ch
+     98	007F  8A C7				     mov al, bh; color
+     99	0081  B7 00				     mov bh, 0
+    100	0083  CD 10				     int 10h
+    101	0085  41				     inc cx
+    102	0086  B4 0C				     mov ah, 0Ch
+    103	0088  8A C3				     mov al, bl; color
+    104	008A  B7 00				     mov bh, 0
+    105	008C  CD 10				     int 10h
+    106	008E  41				     inc cx
+    107						     ;---------
+    108	008F  EB D0				     jmp sloop
+    109	0091			     floop:
+    110	0091  4A			     dec dx
+    111	0092  52			     push dx
+    112	0093  EB B1			     jmp ploop
+    113	0095			     endp pintar
+    114
+Turbo Assembler	 Version 4.1	    04/17/19 22:27:36	    Page 3
 proy.ASM
 
 
 
-    115
-    116	005B  B8 A000			 mov ax, 0A000h
-    117	005E  8E C0			 mov es, ax
-    118	0060  B9 00C8			 mov cx,200
-    119	0063				 PrintBMPLoop:
-    120	0063  51			 push cx
-    121
-    122					 ; di =	cx*320,	point to the correct screen line
-    123
-    124	0064  8B F9			 mov di,cx
-    125	0066  D1 E1 D1 E1 D1 E1	D1+	 shl cx,6
-    126	      E1 D1 E1 D1 E1
-    127	0072  D1 E7 D1 E7 D1 E7	D1+	 shl di,8
-    128	      E7 D1 E7 D1 E7 D1	E7+
-    129	      D1 E7
-    130	0082  03 F9			 add di,cx
-    131
-    132					 ; Read	one line
-    133
-    134	0084  B4 3F			 mov ah,3fh
-    135	0086  B9 0140			 mov cx,320
-    136	0089  BA 0441r			 mov dx,offset ScrLine
-    137	008C  CD 21			 int 21h
-    138
-    139					 ; Copy	one line into video memory
-    140
-    141	008E  FC			 cld
-    142
-    143					 ; Clear direction flag, for movsb
-    144
-    145	008F  B9 0140			 mov cx,320
-    146	0092  BE 0441r			 mov si,offset ScrLine
-    147	0095  F3> A4			 rep movsb
-    148
-    149					 ; Copy	line to	the screen
-    150					 ;rep movsb is same as the following code:
-    151					 ;mov es:di, ds:si
-    152					 ;inc si
-    153					 ;inc di
-    154					 ;dec cx
-    155					 ;loop until cx=0
-    156
-    157	0097  59			 pop cx
-    158	0098  E2 C9			 loop PrintBMPLoop
-    159	009A  C3			 ret
-    160	009B			     endp CopyBitmap
-    161
-    162	009B			     Inicio:
-    163	009B  B8 0000s			     mov ax, datos
-    164	009E  8E D8			     mov ds, ax
-    165
-    166						 ; Graphic mode
-    167	00A0  B8 0013			 mov ax, 13h
-    168	00A3  CD 10			 int 10h
-    169
-    170					 ; Process BMP file
-    171	00A5  E8 FF58			 call OpenFile
-Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 4
-proy.ASM
-
-
-
-    172	00A8  E8 FF6C			 call ReadHeader
-    173	00AB  E8 FF78			 call ReadPalette
-    174	00AE  E8 FF80			 call CopyPal
-    175	00B1  E8 FFA7			 call CopyBitmap
-    176
-    177					 ; Wait	for key	press
-    178	00B4  B4 01			 mov ah,1
-    179
-    180	00B6  CD 21			 int 21h
-    181					 ; Back	to text	mode
-    182	00B8  B4 00			 mov ah, 0
-    183	00BA  B0 02			 mov al, 2
-    184	00BC  CD 10			 int 10h
-    185
-    186	00BE  B8 4C00			 mov ax, 4C00h
-    187	00C1  CD 21			 int 21h
-    188
-    189	00C3			     Codigo EndS
-    190					     End Inicio
-Turbo Assembler	 Version 4.1	    04/15/19 08:44:24	    Page 5
+    115	0095			     Inicio:
+    116	0095  B8 0000s			     mov ax, datos
+    117	0098  8E D8			     mov ds, ax
+    118
+    119	009A  E8 FF63			     call openFile
+    120	009D  E8 FF77			     call ReadHeader
+    121	00A0  E8 FF99			     call pintar
+    122
+    123	00A3			     final:
+    124	00A3  B4 10			     mov ah,10h
+    125	00A5  CD 16			     int 16h
+    126
+    127	00A7  B8 0003			     mov ax,0003h
+    128	00AA  CD 10			     int 10h
+    129
+    130	00AC  B8 4C00			     mov ax, 4C00h
+    131	00AF  CD 21			     int 21h
+    132	00B1			     Codigo EndS
+    133					     End Inicio
+Turbo Assembler	 Version 4.1	    04/17/19 22:27:36	    Page 4
 Symbol Table
 
 
@@ -216,33 +154,34 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "04/15/19"
+??DATE				  Text	 "04/17/19"
 ??FILENAME			  Text	 "proy	  "
-??TIME				  Text	 "08:44:24"
+??TIME				  Text	 "22:27:36"
 ??VERSION			  Number 040A
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CODIGO
 @FILENAME			  Text	 PROY
 @WORDSIZE			  Text	 2
-COPYBITMAP			  Near	 CODIGO:005B
-COPYPAL				  Near	 CODIGO:0031
-ERRORMSG			  Byte	 DATOS:0581
+ANCHO				  Word	 DATOS:0301
+ERRORMSG			  Byte	 DATOS:0305
 FILEHANDLE			  Word	 DATOS:0009
 FILENAME			  Byte	 DATOS:0000
+FINAL				  Near	 CODIGO:00A3
+FLOOP				  Near	 CODIGO:0091
 HEADER				  Byte	 DATOS:000B
-INICIO				  Near	 CODIGO:009B
+HEADER2				  Byte	 DATOS:0081
+INICIO				  Near	 CODIGO:0095
+LARGO				  Word	 DATOS:0303
 OPENERROR			  Near	 CODIGO:000F
 OPENFILE			  Near	 CODIGO:0000
-PALETTE				  Byte	 DATOS:0041
-PALLOOP				  Near	 CODIGO:003E
-PRINTBMPLOOP			  Near	 CODIGO:0063
+PINTAR				  Near	 CODIGO:003C
+PLOOP				  Near	 CODIGO:0046
 READHEADER			  Near	 CODIGO:0017
-READPALETTE			  Near	 CODIGO:0026
-SCRLINE				  Byte	 DATOS:0441
+SLOOP				  Near	 CODIGO:0061
 
 Groups & Segments		  Bit Size Align  Combine Class
 
-CODIGO				  16  00C3 Para	  none
-DATOS				  16  0589 Para	  none
+CODIGO				  16  00B1 Para	  none
+DATOS				  16  030D Para	  none
 PILA				  16  FFFF Para	  none
 
