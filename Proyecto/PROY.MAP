@@ -4,6 +4,7 @@
  00000H 0FFFEH 0FFFFH PILA               
  10000H 1031FH 00320H DATOS              
  10320H 103F1H 000D2H CODIGO             
+ 10400H 10400H 00000H PROCEDIMIENTOS     
 
 Program entry point at 1032:00B6
 Warning: No stack

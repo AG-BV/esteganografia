@@ -1,7 +1,6 @@
 procedimientos segment
-public imprimir
+public 
 assume cs:procedimientos
-
 
 procedimientos endS
  end
