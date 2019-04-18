@@ -4,5 +4,5 @@ Assembling file:   proy.ASM
 Error messages:    None
 Warning messages:  None
 Passes:            1
-Remaining memory:  461k
+Remaining memory:  460k
 

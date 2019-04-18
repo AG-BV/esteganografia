@@ -1,3 +1,4 @@
+include macro.asm
 ;------------------------------------------------------------------------------
 
 Pila Segment
@@ -106,26 +107,14 @@ ploop:
 		push bx
 		;---------
 		xor ax,ax
-		push cx
-		push bx
-		call busqueda
-		pop cx
-		mov ah, 0Ch
-		mov al, ColorCommand; color
-		mov bh, 0
-		int 10h
+		ppila
+		pintarM
 		;---------
 		inc cx
 		pop bx
 		mov bh, bl
-		push cx
-		push bx
-		call busqueda
-		pop cx
-		mov ah, 0Ch
-		mov al, ColorCommand; color
-		mov bh, 0
-		int 10h
+		ppila
+		pintarM
 		inc cx
 		;---------
 		jmp sloop
