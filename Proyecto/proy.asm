@@ -7,12 +7,15 @@ Pila EndS
 ;------------------------------------------------------------------------------
 
 Datos Segment
-	filename db 'leia.bmp',0
-
+	filename db 'imagen.bmp',0
+	
+	paleta 	db 00h, 04h, 02h, 06h, 01h, 05h, 03h, 07h, 08h, 0Ch, 0Ah, 0Eh, 9h, 0Dh, 0Bh, 0Fh
+	
 	filehandle dw ?
 
 	Header db 118 dup (0)
 	Header2 db 640 dup (0)
+	ColorCommand db ?
 
 	ancho dw ?
 	largo dw ?
@@ -22,6 +25,18 @@ Datos EndS
 
 Codigo Segment
 Assume CS:Codigo, DS:Datos
+
+busqueda proc near
+	pop cx
+	pop ax
+	push cx
+	mov al, ah
+	xor ah, ah
+	lea bx, paleta
+	xlat
+	mov ColorCommand, al
+	ret
+endP
 
 OpenFile proc
 	mov ah, 3Dh
@@ -41,7 +56,6 @@ OpenFile proc
 endp OpenFile
 
 ReadHeader proc
-	; Read BMP file header, 54 bytes
 	mov ah,3fh
 	mov bx,[filehandle]
 	mov cx,118
@@ -89,15 +103,27 @@ ploop:
 		and ah, 11110000b
 		rol Ah, 4
 		mov bx, ax
+		push bx
 		;---------
 		xor ax,ax
+		push cx
+		push bx
+		call busqueda
+		pop cx
 		mov ah, 0Ch
-		mov al, bh; color
+		mov al, ColorCommand; color
 		mov bh, 0
 		int 10h
+		;---------
 		inc cx
+		pop bx
+		mov bh, bl
+		push cx
+		push bx
+		call busqueda
+		pop cx
 		mov ah, 0Ch
-		mov al, bl; color
+		mov al, ColorCommand; color
 		mov bh, 0
 		int 10h
 		inc cx

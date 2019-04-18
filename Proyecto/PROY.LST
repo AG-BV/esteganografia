@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    04/17/19 22:27:36	    Page 1
+Turbo Assembler	 Version 4.1	    04/18/19 00:57:53	    Page 1
 proy.ASM
 
 
@@ -12,141 +12,169 @@ proy.ASM
       7				     ;------------------------------------------------------------------------------
       8
       9	0000			     Datos Segment
-     10	0000  6C 65 69 61 2E 62	6D+	     filename db 'leia.bmp',0
-     11	      70 00
+     10	0000  69 6D 61 67 65 6E	2E+	     filename db 'imagen.bmp',0
+     11	      62 6D 70 00
      12
-     13	0009  ????			     filehandle	dw ?
-     14
-     15	000B  76*(00)			     Header db 118 dup (0)
-     16	0081  0280*(00)			     Header2 db	640 dup	(0)
-     17
-     18	0301  ????			     ancho dw ?
-     19	0303  ????			     largo dw ?
-     20
-     21	0305  45 72 72 6F 72 0D	0A+	     ErrorMsg db 'Error', 13, 10,'$'
-     22	      24
-     23	030D			     Datos EndS
-     24
-     25	0000			     Codigo Segment
-     26				     Assume CS:Codigo, DS:Datos
-     27
-     28	0000			     OpenFile proc
-     29	0000  B4 3D			     mov ah, 3Dh
-     30	0002  32 C0			     xor al, al
-     31	0004  BA 0000r			     mov dx, offset filename
-     32	0007  CD 21			     int 21h
-     33
-     34	0009  72 04			     jc	openerror
-     35	000B  A3 0009r			     mov [filehandle], ax
-     36	000E  C3			     ret
-     37
-     38	000F				     openerror:
-     39	000F  BA 0305r			     mov dx, offset ErrorMsg
-     40	0012  B4 09			     mov ah, 9h
-     41	0014  CD 21			     int 21h
-     42	0016  C3			     ret
-     43	0017			     endp OpenFile
+     13	000B  00 04 02 06 01 05	03+	     paleta  db	00h, 04h, 02h, 06h, 01h, 05h, 03h, 07h,	08h, 0Ch, 0Ah, 0Eh, 9h,	0Dh, 0Bh, 0Fh
+     14	      07 08 0C 0A 0E 09	0D+
+     15	      0B 0F
+     16
+     17	001B  ????			     filehandle	dw ?
+     18
+     19	001D  76*(00)			     Header db 118 dup (0)
+     20	0093  0280*(00)			     Header2 db	640 dup	(0)
+     21	0313  ??			     ColorCommand db ?
+     22
+     23	0314  ????			     ancho dw ?
+     24	0316  ????			     largo dw ?
+     25
+     26	0318  45 72 72 6F 72 0D	0A+	     ErrorMsg db 'Error', 13, 10,'$'
+     27	      24
+     28	0320			     Datos EndS
+     29
+     30	0000			     Codigo Segment
+     31				     Assume CS:Codigo, DS:Datos
+     32
+     33	0000			     busqueda proc near
+     34	0000  59			     pop cx
+     35	0001  58			     pop ax
+     36	0002  51			     push cx
+     37	0003  8A C4			     mov al, ah
+     38	0005  32 E4			     xor ah, ah
+     39	0007  BB 000Br			     lea bx, paleta
+     40	000A  D7			     xlat
+     41	000B  A2 0313r			     mov ColorCommand, al
+     42	000E  C3			     ret
+     43	000F			     endP
      44
-     45	0017			     ReadHeader	proc
-     46					     ; Read BMP	file header, 54	bytes
-     47	0017  B4 3F			     mov ah,3fh
-     48	0019  8B 1E 0009r		     mov bx,[filehandle]
-     49	001D  B9 0076			     mov cx,118
-     50	0020  BA 000Br			     mov dx,offset Header
-     51	0023  CD 21			     int 21h
-     52
-     53	0025  50			     push ax
-     54	0026  8A 26 001Er		     mov ah, [Header]+19
-     55	002A  A0 001Dr			     mov al, [Header]+18
-     56	002D  A3 0301r			     mov ancho,	ax
-     57
-Turbo Assembler	 Version 4.1	    04/17/19 22:27:36	    Page 2
+     45	000F			     OpenFile proc
+     46	000F  B4 3D			     mov ah, 3Dh
+     47	0011  32 C0			     xor al, al
+     48	0013  BA 0000r			     mov dx, offset filename
+     49	0016  CD 21			     int 21h
+     50
+     51	0018  72 04			     jc	openerror
+     52	001A  A3 001Br			     mov [filehandle], ax
+     53	001D  C3			     ret
+     54
+     55	001E				     openerror:
+     56	001E  BA 0318r			     mov dx, offset ErrorMsg
+     57	0021  B4 09			     mov ah, 9h
+Turbo Assembler	 Version 4.1	    04/18/19 00:57:53	    Page 2
 proy.ASM
 
 
 
-     58	0030  8A 26 0022r		     mov ah, [Header]+23
-     59	0034  A0 0021r			     mov al, [Header]+22
-     60	0037  A3 0303r			     mov largo,	ax
-     61	003A  58			     pop ax
-     62
-     63	003B  C3			     ret
-     64	003C			     endp ReadHeader
-     65
-     66	003C			     pintar proc
-     67	003C  B4 00			     mov ah, 00h
-     68	003E  B0 12			     mov al, 12h
-     69	0040  CD 10			     int 10h
-     70	0042  BA 01E0			     mov dx, 1E0H
-     71	0045  52			     push dx
-     72	0046			     ploop:
+     58	0023  CD 21			     int 21h
+     59	0025  C3			     ret
+     60	0026			     endp OpenFile
+     61
+     62	0026			     ReadHeader	proc
+     63	0026  B4 3F			     mov ah,3fh
+     64	0028  8B 1E 001Br		     mov bx,[filehandle]
+     65	002C  B9 0076			     mov cx,118
+     66	002F  BA 001Dr			     mov dx,offset Header
+     67	0032  CD 21			     int 21h
+     68
+     69	0034  50			     push ax
+     70	0035  8A 26 0030r		     mov ah, [Header]+19
+     71	0039  A0 002Fr			     mov al, [Header]+18
+     72	003C  A3 0314r			     mov ancho,	ax
      73
-     74	0046  B8 3F00			     mov ax,3f00h
-     75	0049  8B 1E 0009r		     mov bx,[filehandle]
-     76	004D  B9 0140			     mov cx,140h
-     77	0050  BA 0081r			     mov dx,offset Header2
-     78	0053  CD 21			     int 21h
-     79	0055  BE 0081r			     lea si, [header2]
-     80	0058  5A			     pop dx
-     81	0059  83 FA 00			     cmp dx, 0
-     82	005C  74 45			     jz	final
-     83	005E  B9 0000			     mov cx, 0
-     84	0061				     sloop:
-     85	0061  81 F9 0280			     cmp cx, 280h
-     86	0065  74 2A				     jz	floop
-     87	0067  8A 04				     mov al, byte ptr [si]
-     88	0069  8A 24				     mov ah, byte ptr [si]
-     89	006B  46				     inc si
-     90	006C  24 0F				     and al, 00001111b
-     91	006E  80 E4 F0				     and ah, 11110000b
-     92	0071  D0 C4 D0 C4 D0 C4	D0+		     rol Ah, 4
-     93	      C4
-     94	0079  8B D8				     mov bx, ax
-     95						     ;---------
-     96	007B  33 C0				     xor ax,ax
-     97	007D  B4 0C				     mov ah, 0Ch
-     98	007F  8A C7				     mov al, bh; color
-     99	0081  B7 00				     mov bh, 0
-    100	0083  CD 10				     int 10h
-    101	0085  41				     inc cx
-    102	0086  B4 0C				     mov ah, 0Ch
-    103	0088  8A C3				     mov al, bl; color
-    104	008A  B7 00				     mov bh, 0
-    105	008C  CD 10				     int 10h
-    106	008E  41				     inc cx
-    107						     ;---------
-    108	008F  EB D0				     jmp sloop
-    109	0091			     floop:
-    110	0091  4A			     dec dx
-    111	0092  52			     push dx
-    112	0093  EB B1			     jmp ploop
-    113	0095			     endp pintar
-    114
-Turbo Assembler	 Version 4.1	    04/17/19 22:27:36	    Page 3
+     74	003F  8A 26 0034r		     mov ah, [Header]+23
+     75	0043  A0 0033r			     mov al, [Header]+22
+     76	0046  A3 0316r			     mov largo,	ax
+     77	0049  58			     pop ax
+     78
+     79	004A  C3			     ret
+     80	004B			     endp ReadHeader
+     81
+     82	004B			     pintar proc
+     83	004B  B4 00			     mov ah, 00h
+     84	004D  B0 12			     mov al, 12h
+     85	004F  CD 10			     int 10h
+     86	0051  BA 01E0			     mov dx, 1E0H
+     87	0054  52			     push dx
+     88	0055			     ploop:
+     89
+     90	0055  B8 3F00			     mov ax,3f00h
+     91	0058  8B 1E 001Br		     mov bx,[filehandle]
+     92	005C  B9 0140			     mov cx,140h
+     93	005F  BA 0093r			     mov dx,offset Header2
+     94	0062  CD 21			     int 21h
+     95	0064  BE 0093r			     lea si, [header2]
+     96	0067  5A			     pop dx
+     97	0068  83 FA 00			     cmp dx, 0
+     98	006B  74 57			     jz	final
+     99	006D  B9 0000			     mov cx, 0
+    100	0070				     sloop:
+    101	0070  81 F9 0280			     cmp cx, 280h
+    102	0074  74 3C				     jz	floop
+    103	0076  8A 04				     mov al, byte ptr [si]
+    104	0078  8A 24				     mov ah, byte ptr [si]
+    105	007A  46				     inc si
+    106	007B  24 0F				     and al, 00001111b
+    107	007D  80 E4 F0				     and ah, 11110000b
+    108	0080  D0 C4 D0 C4 D0 C4	D0+		     rol Ah, 4
+    109	      C4
+    110	0088  8B D8				     mov bx, ax
+    111	008A  53				     push bx
+    112						     ;---------
+    113	008B  33 C0				     xor ax,ax
+    114	008D  51				     push cx
+Turbo Assembler	 Version 4.1	    04/18/19 00:57:53	    Page 3
 proy.ASM
 
 
 
-    115	0095			     Inicio:
-    116	0095  B8 0000s			     mov ax, datos
-    117	0098  8E D8			     mov ds, ax
-    118
-    119	009A  E8 FF63			     call openFile
-    120	009D  E8 FF77			     call ReadHeader
-    121	00A0  E8 FF99			     call pintar
-    122
-    123	00A3			     final:
-    124	00A3  B4 10			     mov ah,10h
-    125	00A5  CD 16			     int 16h
-    126
-    127	00A7  B8 0003			     mov ax,0003h
-    128	00AA  CD 10			     int 10h
-    129
-    130	00AC  B8 4C00			     mov ax, 4C00h
-    131	00AF  CD 21			     int 21h
-    132	00B1			     Codigo EndS
-    133					     End Inicio
-Turbo Assembler	 Version 4.1	    04/17/19 22:27:36	    Page 4
+    115	008E  53				     push bx
+    116	008F  E8 FF6E				     call busqueda
+    117	0092  59				     pop cx
+    118	0093  B4 0C				     mov ah, 0Ch
+    119	0095  A0 0313r				     mov al, ColorCommand; color
+    120	0098  B7 00				     mov bh, 0
+    121	009A  CD 10				     int 10h
+    122						     ;---------
+    123	009C  41				     inc cx
+    124	009D  5B				     pop bx
+    125	009E  8A FB				     mov bh, bl
+    126	00A0  51				     push cx
+    127	00A1  53				     push bx
+    128	00A2  E8 FF5B				     call busqueda
+    129	00A5  59				     pop cx
+    130	00A6  B4 0C				     mov ah, 0Ch
+    131	00A8  A0 0313r				     mov al, ColorCommand; color
+    132	00AB  B7 00				     mov bh, 0
+    133	00AD  CD 10				     int 10h
+    134	00AF  41				     inc cx
+    135						     ;---------
+    136	00B0  EB BE				     jmp sloop
+    137	00B2			     floop:
+    138	00B2  4A			     dec dx
+    139	00B3  52			     push dx
+    140	00B4  EB 9F			     jmp ploop
+    141	00B6			     endp pintar
+    142
+    143	00B6			     Inicio:
+    144	00B6  B8 0000s			     mov ax, datos
+    145	00B9  8E D8			     mov ds, ax
+    146
+    147	00BB  E8 FF51			     call openFile
+    148	00BE  E8 FF65			     call ReadHeader
+    149	00C1  E8 FF87			     call pintar
+    150
+    151	00C4			     final:
+    152	00C4  B4 10			     mov ah,10h
+    153	00C6  CD 16			     int 16h
+    154
+    155	00C8  B8 0003			     mov ax,0003h
+    156	00CB  CD 10			     int 10h
+    157
+    158	00CD  B8 4C00			     mov ax, 4C00h
+    159	00D0  CD 21			     int 21h
+    160	00D2			     Codigo EndS
+    161					     End Inicio
+Turbo Assembler	 Version 4.1	    04/18/19 00:57:53	    Page 4
 Symbol Table
 
 
@@ -154,34 +182,37 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "04/17/19"
+??DATE				  Text	 "04/18/19"
 ??FILENAME			  Text	 "proy	  "
-??TIME				  Text	 "22:27:36"
+??TIME				  Text	 "00:57:53"
 ??VERSION			  Number 040A
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CODIGO
 @FILENAME			  Text	 PROY
 @WORDSIZE			  Text	 2
-ANCHO				  Word	 DATOS:0301
-ERRORMSG			  Byte	 DATOS:0305
-FILEHANDLE			  Word	 DATOS:0009
+ANCHO				  Word	 DATOS:0314
+BUSQUEDA			  Near	 CODIGO:0000
+COLORCOMMAND			  Byte	 DATOS:0313
+ERRORMSG			  Byte	 DATOS:0318
+FILEHANDLE			  Word	 DATOS:001B
 FILENAME			  Byte	 DATOS:0000
-FINAL				  Near	 CODIGO:00A3
-FLOOP				  Near	 CODIGO:0091
-HEADER				  Byte	 DATOS:000B
-HEADER2				  Byte	 DATOS:0081
-INICIO				  Near	 CODIGO:0095
-LARGO				  Word	 DATOS:0303
-OPENERROR			  Near	 CODIGO:000F
-OPENFILE			  Near	 CODIGO:0000
-PINTAR				  Near	 CODIGO:003C
-PLOOP				  Near	 CODIGO:0046
-READHEADER			  Near	 CODIGO:0017
-SLOOP				  Near	 CODIGO:0061
+FINAL				  Near	 CODIGO:00C4
+FLOOP				  Near	 CODIGO:00B2
+HEADER				  Byte	 DATOS:001D
+HEADER2				  Byte	 DATOS:0093
+INICIO				  Near	 CODIGO:00B6
+LARGO				  Word	 DATOS:0316
+OPENERROR			  Near	 CODIGO:001E
+OPENFILE			  Near	 CODIGO:000F
+PALETA				  Byte	 DATOS:000B
+PINTAR				  Near	 CODIGO:004B
+PLOOP				  Near	 CODIGO:0055
+READHEADER			  Near	 CODIGO:0026
+SLOOP				  Near	 CODIGO:0070
 
 Groups & Segments		  Bit Size Align  Combine Class
 
-CODIGO				  16  00B1 Para	  none
-DATOS				  16  030D Para	  none
+CODIGO				  16  00D2 Para	  none
+DATOS				  16  0320 Para	  none
 PILA				  16  FFFF Para	  none
 
