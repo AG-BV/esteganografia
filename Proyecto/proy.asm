@@ -53,6 +53,7 @@ OpenFile proc
 	mov dx, offset ErrorMsg
 	mov ah, 9h
 	int 21h
+
 	ret
 endp OpenFile
 
@@ -72,6 +73,21 @@ ReadHeader proc
 	mov al, [Header]+22
 	mov largo, ax
 	pop ax
+	
+	mov ah,3eh 
+	mov bx,FileHandle 
+	int 21h
+	
+	mov ah, 3Dh
+	xor al, al
+	mov dx, offset filename
+	int 21h
+	
+	mov ah,3fh
+	mov bx,[filehandle]
+	mov cx,118
+	mov dx,offset Header
+	int 21h
 	
 	ret
 endp ReadHeader
@@ -133,6 +149,10 @@ Inicio:
 	call pintar
 
 final:
+	mov ah,3eh
+	mov bx,FileHandle
+	int 21h
+
 	mov ah,10h
 	int 16h
 	
