@@ -1,8 +1,9 @@
 Turbo Assembler  Version 4.1  Copyright (c) 1988, 1993 Borland International
 
 Assembling file:   proy.ASM
+*Warning* proy.ASM(277) [Constant] assumed to mean immediate constant
 Error messages:    None
-Warning messages:  None
+Warning messages:  1
 Passes:            1
-Remaining memory:  460k
+Remaining memory:  456k
 

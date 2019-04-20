@@ -11,3 +11,22 @@ ppila macro
 	call busqueda
 	pop cx
 endm
+
+ListPush  Macro lista
+    IRP i,<lista>
+		Push i
+    EndM
+EndM
+
+ListPop  Macro lista
+	IRP i,<lista>
+		Pop i
+	EndM
+EndM
+
+comparar Macro line, var
+	mov cx, 2
+	lea di, line
+	lea si, var
+	rep cmpsb
+endM
