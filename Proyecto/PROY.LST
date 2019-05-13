@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 1
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 1
 proy.ASM
 
 
@@ -36,476 +36,712 @@ proy.ASM
 1    31					     lea si, var
 1    32					     rep cmpsb
 1    33				     endM
-     34				     ;------------------------------------------------------------------------------
-     35
-     36	0000			     Pila Segment
-     37	0000  FFFF*(??)		      db 0FFFFh	Dup (?)
-     38	FFFF			     Pila EndS
-     39
+1    34
+1    35				     imprimirP macro msj
+1    36					     mov ah, 09h
+1    37					     lea dx, msj
+1    38					     int 21h
+1    39				     endM
      40				     ;------------------------------------------------------------------------------
      41
-     42	0000			     Datos Segment
-     43	0000  ??			     filename db ?
-     44	0001  4D 6F 63 6F 4C 6F	63+	     clave db 'MocoLoco$'
-     45	      6F 24
-     46	000A  ????			     sclave dw ?
-     47	000C  ????			     lclave dw ?
-     48	000E  ????			     fila dw ?
-     49	0010  ????			     columna dw	?
-     50
-     51	0012  00 04 02 06 01 05	03+	     paleta  db	00h, 04h, 02h, 06h, 01h, 05h, 03h, 07h,	08h, 0Ch, 0Ah, 0Eh, 9h,	0Dh, 0Bh, 0Fh
-     52	      07 08 0C 0A 0E 09	0D+
-     53	      0B 0F
-     54
-     55	0022  ????			     fileH dw ?
-     56
-     57	0024  76*(00)			     Header db 118 dup (0)
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 2
+     42	0000			     Pila Segment
+     43	0000  FFFF*(??)		      db 0FFFFh	Dup (?)
+     44	FFFF			     Pila EndS
+     45
+     46				     ;------------------------------------------------------------------------------
+     47
+     48	0000			     Datos Segment
+     49	0000  04			     ce	db 4
+     50	0001  FF*(??)			     filename db 255 dup (?)
+     51	0100  00					      db 0
+     52	0101  FF*(??)			     clave db 255 dup (?)
+     53	0200  ????			     sclave dw ?
+     54	0202  ????			     lclave dw ?
+     55	0204  ????			     fila dw ?
+     56	0206  ????			     columna dw	?
+     57	0208  ????			     extension dw ?
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 2
 proy.ASM
 
 
 
-     58	009A  0280*(00)			     Header2 db	640 dup	(0)
-     59	031A  ??			     ColorCommand db ?
-     60	031B  FF*(??)			     LineCommand db    0FFh Dup	(?)  ;255 bits,	por la linea de	comandos
-     61	041A  24					     db	'$'
-     62
-     63	041B  ????			     ancho dw ?
-     64	041D  ????			     largo dw ?
+     58	020A  FF*(??)			     texto db 255 dup (?)
+     59
+     60	0309  00 04 02 06 01 05	03+	     paleta  db	00h, 04h, 02h, 06h, 01h, 05h, 03h, 08h,	07h, 0Ch, 0Ah, 0Eh, 9h,	0Dh, 0Bh, 0Fh
+     61	      08 07 0C 0A 0E 09	0D+
+     62	      0B 0F
+     63
+     64	0319  ????			     fileH dw ?
      65
-     66	041F  2D 2D 2D 2D 2D 2D	2D+	     msg1 db '--------Programa esteganografia--------'
-     67	      2D 50 72 6F 67 72	61+
-     68	      6D 61 20 65 73 74	65+
-     69	      67 61 6E 6F 67 72	61+
-     70	      66 69 61 2D 2D 2D	2D+
-     71	      2D 2D 2D 2D
-     72	0446  0A 0D 46 6F 72 6D	61+	     msg2 db 10,13,'Formato de uso: estega /e /t:"texto" /? /d /c:"clave" /bmp:"archivo.bmp"'
-     73	      74 6F 20 64 65 20	75+
-     74	      73 6F 3A 20 65 73	74+
-     75	      65 67 61 20 2F 65	20+
-     76	      2F 74 3A 22 74 65	78+
-     77	      74 6F 22 20 2F 3F	20+
-     78	      2F 64 20 2F 63 3A	22+
-     79	      63 6C 61 76 65 22	20+
-     80	      2F 62 6D 70 3A 22	61+
-     81	      72 63 68 69 76 6F	2E+
-     82	      62 6D 70 22
-     83	0490  0A 0D 2F 68 20 6F	20+	     msg3 db 10,13,'/h o /H Ayuda'
-     84	      2F 48 20 41 79 75	64+
-     85	      61
-     86	049F  0A 0D 2F 65 20 6F	20+	     msg4 db 10,13,'/e o /E Esteganografiar el mensaje "texto" con la "clave" en el "bmp"'
-     87	      2F 45 20 45 73 74	65+
-     88	      67 61 6E 6F 67 72	61+
-     89	      66 69 61 72 20 65	6C+
-     90	      20 6D 65 6E 73 61	6A+
-     91	      65 20 22 74 65 78	74+
-     92	      6F 22 20 63 6F 6E	20+
-     93	      6C 61 20 22 63 6C	61+
-     94	      76 65 22 20 65 6E	20+
-     95	      65 6C 20 22 62 6D	70+
-     96	      22
-     97	04E6  0A 0D 2F 64 20 6F	20+	     msg5 db 10,13,'/d o /D Desencriptar el mensaje con	la "clave" en el bmp'
-     98	      2F 44 20 44 65 73	65+
-     99	      6E 63 72 69 70 74	61+
-    100	      72 20 65 6C 20 6D	65+
-    101	      6E 73 61 6A 65 20	63+
-    102	      6F 6E 20 6C 61 20	22+
-    103	      63 6C 61 76 65 22	20+
-    104	      65 6E 20 65 6C 20	62+
-    105	      6D 70
-    106	0520  0A 0D 22 61 72 63	68+	     msg6 db 10,13,'"archivo" Es el nombre del archivo debe ser	un bmp de 16 colores'
-    107	      69 76 6F 22 20 45	73+
-    108	      20 65 6C 20 6E 6F	6D+
-    109	      62 72 65 20 64 65	6C+
-    110	      20 61 72 63 68 69	76+
-    111	      6F 20 64 65 62 65	20+
-    112	      73 65 72 20 75 6E	20+
-    113	      62 6D 70 20 64 65	20+
-    114	      31 36 20 63 6F 6C	6F+
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 3
+     66	031B  76*(00)			     Header db 118 dup (0)
+     67	0391  0280*(00)			     Header2 db	640 dup	(0)
+     68	0611  10*(00)			     Header3 db	16 dup (0)
+     69	0621  ??			     ColorCommand db ?
+     70	0622  FF*(??)			     LineCommand db    0FFh Dup	(?)
+     71	0721  24					     db	'$'
+     72
+     73	0722  ????			     ancho dw ?
+     74	0724  ????			     largo dw ?
+     75
+     76	0726  2D 2D 2D 2D 2D 2D	2D+	     msg1 db '--------Programa esteganografia--------'
+     77	      2D 50 72 6F 67 72	61+
+     78	      6D 61 20 65 73 74	65+
+     79	      67 61 6E 6F 67 72	61+
+     80	      66 69 61 2D 2D 2D	2D+
+     81	      2D 2D 2D 2D
+     82	074D  0A 0D 46 6F 72 6D	61+	     msg2 db 10,13,'Formato de uso: estega /e /t:"texto" /? /d /c:"clave" /bmp:"archivo.bmp"'
+     83	      74 6F 20 64 65 20	75+
+     84	      73 6F 3A 20 65 73	74+
+     85	      65 67 61 20 2F 65	20+
+     86	      2F 74 3A 22 74 65	78+
+     87	      74 6F 22 20 2F 3F	20+
+     88	      2F 64 20 2F 63 3A	22+
+     89	      63 6C 61 76 65 22	20+
+     90	      2F 62 6D 70 3A 22	61+
+     91	      72 63 68 69 76 6F	2E+
+     92	      62 6D 70 22
+     93	0797  0A 0D 2F 68 20 6F	20+	     msg3 db 10,13,'/h o /H Ayuda'
+     94	      2F 48 20 41 79 75	64+
+     95	      61
+     96	07A6  0A 0D 2F 65 20 6F	20+	     msg4 db 10,13,'/e o /E Esteganografiar el mensaje "texto" con la "clave" en el "bmp"'
+     97	      2F 45 20 45 73 74	65+
+     98	      67 61 6E 6F 67 72	61+
+     99	      66 69 61 72 20 65	6C+
+    100	      20 6D 65 6E 73 61	6A+
+    101	      65 20 22 74 65 78	74+
+    102	      6F 22 20 63 6F 6E	20+
+    103	      6C 61 20 22 63 6C	61+
+    104	      76 65 22 20 65 6E	20+
+    105	      65 6C 20 22 62 6D	70+
+    106	      22
+    107	07ED  0A 0D 2F 64 20 6F	20+	     msg5 db 10,13,'/d o /D Desencriptar el mensaje con	la "clave" en el bmp'
+    108	      2F 44 20 44 65 73	65+
+    109	      6E 63 72 69 70 74	61+
+    110	      72 20 65 6C 20 6D	65+
+    111	      6E 73 61 6A 65 20	63+
+    112	      6F 6E 20 6C 61 20	22+
+    113	      63 6C 61 76 65 22	20+
+    114	      65 6E 20 65 6C 20	62+
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 3
 proy.ASM
 
 
 
-    115	      72 65 73
-    116	0562  0A 0D 65 73 74 65	67+	     msg7 db 10,13,'estega /bmp:"archivo.bmp" para mostrar imagen$'
-    117	      61 20 2F 62 6D 70	3A+
-    118	      22 61 72 63 68 69	76+
-    119	      6F 2E 62 6D 70 22	20+
-    120	      70 61 72 61 20 6D	6F+
-    121	      73 74 72 61 72 20	69+
-    122	      6D 61 67 65 6E 24
-    123
-    124	0592  2F 68			     var1 db '/h'
-    125	0594  2F 65			     var2 db '/e'
-    126	0596  2F 64			     var3 db '/d'
-    127	0598  2F 62 6D 70		     var4 db '/bmp'
-    128	059C			     Datos EndS
-    129
-    130	0000			     Codigo Segment
-    131				     Assume CS:Codigo, DS:Datos
-    132
-    133	0000			     imprimir proc near
-    134	0000  B4 09			     mov ah, 09h
-    135	0002  BA 041Fr			     lea dx, msg1
-    136	0005  CD 21			     int 21h
-    137	0007  C3			     ret
-    138	0008			     imprimir endp
+    115	      6D 70
+    116	0827  0A 0D 22 61 72 63	68+	     msg6 db 10,13,'"archivo" Es el nombre del archivo debe ser	un bmp de 16 colores'
+    117	      69 76 6F 22 20 45	73+
+    118	      20 65 6C 20 6E 6F	6D+
+    119	      62 72 65 20 64 65	6C+
+    120	      20 61 72 63 68 69	76+
+    121	      6F 20 64 65 62 65	20+
+    122	      73 65 72 20 75 6E	20+
+    123	      62 6D 70 20 64 65	20+
+    124	      31 36 20 63 6F 6C	6F+
+    125	      72 65 73
+    126	0869  0A 0D 65 73 74 65	67+	     msg7 db 10,13,'estega /bmp:"archivo.bmp" para mostrar imagen$'
+    127	      61 20 2F 62 6D 70	3A+
+    128	      22 61 72 63 68 69	76+
+    129	      6F 2E 62 6D 70 22	20+
+    130	      70 61 72 61 20 6D	6F+
+    131	      73 74 72 61 72 20	69+
+    132	      6D 61 67 65 6E 24
+    133
+    134	0899  2F 68			     var1 db '/h'
+    135	089B  2F 65			     var2 db '/e'
+    136	089D  2F 64			     var3 db '/d'
+    137	089F  2F 62 6D 70		     var4 db '/bmp'
+    138	08A3			     Datos EndS
     139
-    140	0008			     sumaD proc	near
-    141	0008  58			     pop ax
-    142	0009  59			     pop cx
-    143	000A  50			     push ax
-    144	000B  33 DB			     xor bx, bx
-    145	000D				     cicloSuma:
-    146	000D  83 FB 10				     cmp bx, 10h
-    147	0010  74 04				     jz	salirSumaD
-    148	0012  41				     inc cx
-    149	0013  43				     inc bx
-    150	0014  EB F7				     jmp cicloSuma
-    151
-    152	0016				     salirSumaD:
-    153	0016  58				     pop ax
-    154	0017  51				     push cx
-    155	0018  50				     push ax
-    156	0019  C3				     ret
-    157	001A			     sumaD endp
-    158
-    159	001A			     ubicador proc near
-    160	001A  B4 3D			     mov ah, 3Dh
-    161	001C  32 C0			     xor al, al
-    162	001E  BA 0000r			     mov dx, offset filename
-    163	0021  CD 21			     int 21h
-    164	0023  A3 0022r			     mov [fileH], ax
-    165
-    166	0026  A1 000Ar			     mov ax, sclave
-    167	0029  8B 1E 000Ar		     mov bx, sclave
-    168	002D  25 FFF0			     and ax, 1111111111110000b
-    169	0030  83 E3 0F			     and bx, 0000000000001111b
-    170	0033  A3 000Er			     mov fila, ax
-    171	0036  89 1E 0010r		     mov columna, bx
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 4
+    140	0000			     Codigo Segment
+    141				     Assume CS:Codigo, DS:Datos
+    142
+    143	0000			     imprimir proc near
+    144	0000  B4 09			     mov ah, 09h
+    145	0002  BA 0726r			     lea dx, msg1
+    146	0005  CD 21			     int 21h
+    147	0007  C3			     ret
+    148	0008			     imprimir endp
+    149
+    150	0008			     sumaD proc	near
+    151	0008  58			     pop ax
+    152	0009  59			     pop cx
+    153	000A  50			     push ax
+    154	000B  33 DB			     xor bx, bx
+    155	000D				     cicloSuma:
+    156	000D  83 FB 10				     cmp bx, 10h
+    157	0010  74 04				     jz	salirSumaD
+    158	0012  41				     inc cx
+    159	0013  43				     inc bx
+    160	0014  EB F7				     jmp cicloSuma
+    161
+    162	0016				     salirSumaD:
+    163	0016  58				     pop ax
+    164	0017  51				     push cx
+    165	0018  50				     push ax
+    166	0019  C3				     ret
+    167	001A			     sumaD endp
+    168
+    169	001A			     desencriptarPal proc near
+    170	001A  BE 020Ar			     lea si, texto
+    171	001D				     cicloDes:
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 4
 proy.ASM
 
 
 
-    172	003A  B4 3F			     mov ah,3fh
-    173	003C  8B 1E 0022r		     mov bx,[fileH]
-    174	0040  B9 0010			     mov cx,16
-    175	0043  BA 0024r			     mov dx,offset Header
-    176	0046  CD 21			     int 21h
-    177	0048  33 C9			     xor cx,cx
-    178
-    179	004A				     bfila:
-    180	004A  3B 0E 000Er			     cmp cx, fila
-    181	004E  74 15				     jz	procesoC
-    182	0050  51				     push cx
-    183	0051  B4 3F				     mov ah,3fh
-    184	0053  8B 1E 0022r			     mov bx,[fileH]
-    185	0057  B9 0010				     mov cx,16
-    186	005A  BA 0024r				     mov dx,offset Header
-    187	005D  CD 21				     int 21h
-    188	005F  E8 FFA6				     call sumaD
-    189	0062  59				     pop cx
-    190	0063  EB E5				     jmp bfila
-    191
-    192	0065				     procesoC:
-    193	0065  33 C0				     xor ax,ax
-    194	0067  33 C9				     xor cx,cx
-    195	0069  33 F6				     xor si,si
-    196	006B  BE 0024r				     lea si, [Header]
-    197	006E				     bcolumna:
-    198	006E  3B 0E 0010r			     cmp cx, columna
-    199	0072  74 06				     jz	salidaU
-    200	0074  8A 04				     mov al, byte ptr [si]
-    201	0076  41				     inc cx
-    202	0077  46				     inc si
-    203	0078  EB F4				     jmp bcolumna
-    204
-    205	007A				     salidaU:
-    206	007A  58				     pop ax
-    207	007B  56				     push si
-    208	007C  50				     push ax
-    209	007D  C3				     ret
-    210	007E			     ubicador endp
-    211
-    212	007E			     sumadorC proc near
-    213	007E  BE 0001r			     lea si, clave
-    214	0081  33 C9			     xor cx,cx
-    215	0083  8A 04			     mov al, byte ptr [si]
-    216	0085  46			     inc si
-    217	0086  41			     inc cx
-    218	0087  32 E4			     xor ah,ah
-    219	0089  A3 000Ar			     mov sclave, ax
-    220	008C  3C 24			     cmp al, '$'
-    221	008E  74 11			     jz	fciclo
+    172	001D  8A 04				     mov al, byte ptr [si]
+    173	001F  3C 24				     cmp al, "$"
+    174	0021  74 09				     jz	salidaDes
+    175	0023  2A 06 0000r			     sub al, ce
+    176	0027  88 04				     mov byte ptr [si],	al
+    177	0029  46				     inc si
+    178	002A  EB F1				     jmp cicloDes
+    179
+    180	002C				     salidaDes:
+    181	002C  C3				     ret
+    182	002D			     desencriptarPal endp
+    183
+    184	002D			     encriptarPal proc near
+    185	002D  BE 020Ar			     lea si, texto
+    186	0030				     cicloEnc:
+    187	0030  8A 04				     mov al, byte ptr [si]
+    188	0032  3C 24				     cmp al, "$"
+    189	0034  74 09				     jz	salidaEnc
+    190	0036  02 06 0000r			     add al, ce
+    191	003A  88 04				     mov byte ptr [si],	al
+    192	003C  46				     inc si
+    193	003D  EB F1				     jmp cicloEnc
+    194
+    195	003F				     salidaEnc:
+    196	003F  C3				     ret
+    197	0040			     encriptarPal endp
+    198
+    199	0040			     escribir proc near
+    200	0040  BE 0000			     mov si, 0000h
+    201	0043  B4 40			     mov ah,40h
+    202	0045  8B 1E 0319r		     mov bx,[fileH]
+    203	0049  8B 0E 0208r		     mov cx,extension
+    204	004D  BA 020Ar			     lea dx,texto
+    205	0050  CD 21			     int 21h
+    206	0052  C3			     ret
+    207	0053			     escribir endp
+    208
+    209	0053			     ubicadorD proc near
+    210	0053  A1 0200r			     mov ax, sclave
+    211	0056  8B 1E 0200r		     mov bx, sclave
+    212	005A  25 FFF0			     and ax, 1111111111110000b
+    213	005D  83 E3 0F			     and bx, 0000000000001111b
+    214	0060  A3 0204r			     mov fila, ax
+    215	0063  89 1E 0206r		     mov columna, bx
+    216	0067  B4 3F			     mov ah,3fh
+    217	0069  8B 1E 0319r		     mov bx,[fileH]
+    218	006D  B9 0010			     mov cx,16
+    219	0070  BA 0611r			     mov dx,offset Header3
+    220	0073  CD 21			     int 21h
+    221	0075  33 C9			     xor cx,cx
     222
-    223	0090				     ciclo:
-    224	0090  8A 1C				     mov bl, byte ptr [si]
-    225	0092  80 FB 24				     cmp bl, '$'
-    226	0095  74 0A				     jz	fciclo
-    227	0097  32 FF				     xor bh,bh
-    228	0099  01 1E 000Ar			     add sclave, bx
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 5
+    223	0077				     bfilaD:
+    224	0077  3B 0E 0204r			     cmp cx, fila
+    225	007B  74 15				     jz	procesoCD
+    226	007D  51				     push cx
+    227	007E  B4 3F				     mov ah,3fh
+    228	0080  8B 1E 0319r			     mov bx,[fileH]
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 5
 proy.ASM
 
 
 
-    229	009D  46				     inc si
-    230	009E  41				     inc cx
-    231	009F  EB EF				     jmp ciclo
-    232
-    233	00A1				     fciclo:
-    234	00A1  89 0E 000Cr		     mov lclave, cx
-    235	00A5  A1 000Ar			     mov ax, sclave
-    236	00A8				     sciclo:
-    237	00A8  83 F9 00				     cmp cx, 0000h
-    238	00AB  74 07				     jz	salir
-    239	00AD  01 06 000Ar			     add sclave, ax
-    240	00B1  49				     dec cx
-    241	00B2  EB F4				     jmp sciclo
-    242
-    243	00B4				     salir:
-    244	00B4  C3				     ret
-    245
-    246	00B5			     sumadorC endp
-    247
-    248	00B5			     busqueda proc near
-    249	00B5  59			     pop cx
-    250	00B6  58			     pop ax
-    251	00B7  51			     push cx
-    252	00B8  8A C4			     mov al, ah
-    253	00BA  32 E4			     xor ah, ah
-    254	00BC  BB 0012r			     lea bx, paleta
-    255	00BF  D7			     xlat
-    256	00C0  A2 031Ar			     mov ColorCommand, al
-    257	00C3  C3			     ret
-    258	00C4			     endP
-    259
-    260	00C4			     abrirArchivo proc
-    261	00C4  B4 3D			     mov ah, 3Dh
-    262	00C6  32 C0			     xor al, al
-    263	00C8  BA 0000r			     mov dx, offset filename
-    264	00CB  CD 21			     int 21h
-    265	00CD  A3 0022r			     mov [fileH], ax
-    266	00D0  C3			     ret
-    267	00D1			     endp abrirArchivo
-    268
-    269	00D1			     leerH proc
-    270	00D1  B4 3F			     mov ah,3fh
-    271	00D3  8B 1E 0022r		     mov bx,[fileH]
-    272	00D7  B9 0076			     mov cx,118
-    273	00DA  BA 0024r			     mov dx,offset Header
-    274	00DD  CD 21			     int 21h
-    275
-    276	00DF  50			     push ax
-    277	00E0  8A 26 0037r		     mov ah, [Header]+19
-    278	00E4  A0 0036r			     mov al, [Header]+18
-    279	00E7  A3 041Br			     mov ancho,	ax
-    280
-    281	00EA  8A 26 003Br		     mov ah, [Header]+23
-    282	00EE  A0 003Ar			     mov al, [Header]+22
-    283	00F1  A3 041Dr			     mov largo,	ax
-    284	00F4  58			     pop ax
-    285
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 6
+    229	0084  B9 0010				     mov cx,16
+    230	0087  BA 0611r				     mov dx,offset Header3
+    231	008A  CD 21				     int 21h
+    232	008C  E8 FF79				     call sumaD
+    233	008F  59				     pop cx
+    234	0090  EB E5				     jmp bfilaD
+    235
+    236	0092				     procesoCD:
+    237	0092  33 C0				     xor ax,ax
+    238	0094  33 C9				     xor cx,cx
+    239	0096  33 F6				     xor si,si
+    240	0098  BE 0611r				     lea si, [Header3]
+    241	009B				     bcolumnaD:
+    242	009B  3B 0E 0206r			     cmp cx, columna
+    243	009F  74 06				     jz	salidaUD
+    244	00A1  8A 04				     mov al, byte ptr [si]
+    245	00A3  41				     inc cx
+    246	00A4  46				     inc si
+    247	00A5  EB F4				     jmp bcolumnaD
+    248
+    249	00A7				     salidaUD:
+    250	00A7  58				     pop ax
+    251	00A8  56				     push si
+    252	00A9  50				     push ax
+    253	00AA  BF 020Ar				     lea di, texto
+    254	00AD					     ciclo1:
+    255	00AD  B4 3F					     mov ah,3fh
+    256	00AF  8B 1E 0319r				     mov bx,[fileH]
+    257	00B3  B9 0010					     mov cx,16
+    258	00B6  BA 0611r					     mov dx,offset Header3
+    259	00B9  CD 21					     int 21h
+    260	00BB  BE 0611r					     lea si, Header3
+    261	00BE  33 C9					     xor cx, cx
+    262	00C0  51					     push cx
+    263	00C1						     ciclo2:
+    264	00C1  59						     pop cx
+    265	00C2  80 3C 24						     cmp byte ptr [si],	24h
+    266	00C5  74 0F						     jz	salidaD
+    267	00C7  83 F9 10						     cmp cx, 16
+    268	00CA  74 E1						     jz	ciclo1
+    269	00CC  8A 04						     mov al, byte ptr [si]
+    270	00CE  88 05						     mov byte ptr [di],	al
+    271	00D0  46						     inc si
+    272	00D1  47						     inc di
+    273	00D2  41						     inc cx
+    274	00D3  51						     push cx
+    275	00D4  EB EB						     jmp ciclo2
+    276
+    277	00D6				     salidaD:
+    278	00D6  8A 04				     mov al, byte ptr [si]
+    279	00D8  88 05				     mov byte ptr [di],	al
+    280	00DA  E8 FF3D				     call desencriptarPal
+    281						     imprimirP texto
+1   282	00DD  B4 09			     mov ah, 09h
+1   283	00DF  BA 020Ar			     lea dx, texto
+1   284	00E2  CD 21			     int 21h
+    285	00E4  C3				     ret
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 6
 proy.ASM
 
 
 
-    286	00F5  C3			     ret
-    287	00F6			     endp leerH
-    288
-    289	00F6			     pintar proc
-    290	00F6  B4 00			     mov ah, 00h
-    291	00F8  B0 12			     mov al, 12h
-    292	00FA  CD 10			     int 10h
-    293	00FC  BA 01E0			     mov dx, 1E0H
-    294	00FF  52			     push dx
-    295	0100			     ploop:
-    296
-    297	0100  B8 3F00			     mov ax,3f00h
-    298	0103  8B 1E 0022r		     mov bx,[fileH]
-    299	0107  B9 0140			     mov cx,140h
-    300	010A  BA 009Ar			     mov dx,offset Header2
-    301	010D  CD 21			     int 21h
-    302	010F  BE 009Ar			     lea si, [Header2]
-    303	0112  5A			     pop dx
-    304	0113  83 FA 00			     cmp dx, 0
-    305	0116  74 49			     jz	re
-    306	0118  B9 0000			     mov cx, 0
-    307	011B				     sloop:
-    308	011B  81 F9 0280			     cmp cx, 280h
-    309	011F  74 3C				     jz	floop
-    310	0121  8A 04				     mov al, byte ptr [si]
-    311	0123  8A 24				     mov ah, byte ptr [si]
-    312	0125  46				     inc si
-    313	0126  24 0F				     and al, 00001111b
-    314	0128  80 E4 F0				     and ah, 11110000b
-    315	012B  D0 C4 D0 C4 D0 C4	D0+		     rol Ah, 4
-    316	      C4
-    317	0133  8B D8				     mov bx, ax
-    318	0135  53				     push bx
-    319						     ;---------
-    320	0136  33 C0				     xor ax,ax
-    321						     ppila
-1   322	0138  51			     push cx
-1   323	0139  53			     push bx
-1   324	013A  E8 FF78			     call busqueda
-1   325	013D  59			     pop cx
-    326						     pintarM
-1   327	013E  B4 0C			     mov ah, 0Ch
-1   328	0140  A0 031Ar			     mov al, ColorCommand; color
-1   329	0143  B7 00			     mov bh, 0
-1   330	0145  CD 10			     int 10h
-    331						     ;---------
-    332	0147  41				     inc cx
-    333	0148  5B				     pop bx
-    334	0149  8A FB				     mov bh, bl
-    335						     ppila
-1   336	014B  51			     push cx
-1   337	014C  53			     push bx
-1   338	014D  E8 FF65			     call busqueda
-1   339	0150  59			     pop cx
-    340						     pintarM
-1   341	0151  B4 0C			     mov ah, 0Ch
-1   342	0153  A0 031Ar			     mov al, ColorCommand; color
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 7
+    286	00E5			     ubicadorD endp
+    287
+    288	00E5			     ubicador proc near
+    289	00E5  A1 0200r			     mov ax, sclave
+    290	00E8  8B 1E 0200r		     mov bx, sclave
+    291	00EC  25 FFF0			     and ax, 1111111111110000b
+    292	00EF  83 E3 0F			     and bx, 0000000000001111b
+    293	00F2  A3 0204r			     mov fila, ax
+    294	00F5  89 1E 0206r		     mov columna, bx
+    295	00F9  B4 3F			     mov ah,3fh
+    296	00FB  8B 1E 0319r		     mov bx,[fileH]
+    297	00FF  B9 0010			     mov cx,16
+    298	0102  BA 0611r			     mov dx,offset Header3
+    299	0105  CD 21			     int 21h
+    300	0107  33 C9			     xor cx,cx
+    301
+    302	0109				     bfila:
+    303	0109  3B 0E 0204r			     cmp cx, fila
+    304	010D  74 15				     jz	procesoC
+    305	010F  51				     push cx
+    306	0110  B4 3F				     mov ah,3fh
+    307	0112  8B 1E 0319r			     mov bx,[fileH]
+    308	0116  B9 0010				     mov cx,16
+    309	0119  BA 0611r				     mov dx,offset Header3
+    310	011C  CD 21				     int 21h
+    311	011E  E8 FEE7				     call sumaD
+    312	0121  59				     pop cx
+    313	0122  EB E5				     jmp bfila
+    314
+    315	0124				     procesoC:
+    316	0124  33 C0				     xor ax,ax
+    317	0126  33 C9				     xor cx,cx
+    318	0128  33 F6				     xor si,si
+    319	012A  BE 0611r				     lea si, [Header3]
+    320	012D				     bcolumna:
+    321	012D  3B 0E 0206r			     cmp cx, columna
+    322	0131  74 06				     jz	salidaU
+    323	0133  8A 04				     mov al, byte ptr [si]
+    324	0135  41				     inc cx
+    325	0136  46				     inc si
+    326	0137  EB F4				     jmp bcolumna
+    327
+    328	0139				     salidaU:
+    329	0139  58				     pop ax
+    330	013A  56				     push si
+    331	013B  50				     push ax
+    332	013C  E8 FEEE				     call encriptarPal
+    333	013F  E8 FEFE				     call escribir
+    334	0142  C3				     ret
+    335	0143			     ubicador endp
+    336
+    337	0143			     sumadorC proc near
+    338	0143  BE 0101r			     lea si, clave
+    339	0146  33 C9			     xor cx,cx
+    340	0148  8A 04			     mov al, byte ptr [si]
+    341	014A  46			     inc si
+    342	014B  41			     inc cx
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 7
 proy.ASM
 
 
 
-1   343	0156  B7 00			     mov bh, 0
-1   344	0158  CD 10			     int 10h
-    345	015A  41				     inc cx
-    346						     ;---------
-    347	015B  EB BE				     jmp sloop
-    348	015D			     floop:
-    349	015D  4A			     dec dx
-    350	015E  52			     push dx
-    351	015F  EB 9F			     jmp ploop
-    352
-    353	0161			     re:
-    354	0161  B4 01			     mov ah,1
-    355	0163  CD 21			     int 21h
-    356
-    357	0165  B4 00			     mov ah, 0
-    358	0167  B0 02			     mov al, 2
-    359	0169  CD 10			     int 10h
-    360
-    361	016B  B4 3E			     mov ah,3eh
-    362	016D  CD 21			     int 21h
-    363	016F  C3			     ret
-    364
-    365	0170  C3			     ret
-    366	0171			     endp pintar
+    343	014C  32 E4			     xor ah,ah
+    344	014E  A3 0200r			     mov sclave, ax
+    345	0151  3C 24			     cmp al, '$'
+    346	0153  74 11			     jz	fciclo
+    347
+    348	0155				     ciclo:
+    349	0155  8A 1C				     mov bl, byte ptr [si]
+    350	0157  80 FB 24				     cmp bl, '$'
+    351	015A  74 0A				     jz	fciclo
+    352	015C  32 FF				     xor bh,bh
+    353	015E  01 1E 0200r			     add sclave, bx
+    354	0162  46				     inc si
+    355	0163  41				     inc cx
+    356	0164  EB EF				     jmp ciclo
+    357
+    358	0166				     fciclo:
+    359	0166  89 0E 0202r		     mov lclave, cx
+    360	016A  A1 0200r			     mov ax, sclave
+    361	016D				     sciclo:
+    362	016D  83 F9 00				     cmp cx, 0000h
+    363	0170  74 07				     jz	salir
+    364	0172  01 06 0200r			     add sclave, ax
+    365	0176  49				     dec cx
+    366	0177  EB F4				     jmp sciclo
     367
-    368	0171			     GetCommanderLine Proc Near
-    369	      =0080			     LongLC    EQU   80h
-    370					     ListPush  <Es, Di,	Si, Cx,	Bp>
-2   371	0171  06				     Push Es
-2   372	0172  57				     Push Di
-2   373	0173  56				     Push Si
-2   374	0174  51				     Push Cx
-2   375	0175  55				     Push Bp
-    376	0176  8B EC			     Mov   Bp,Sp
-    377	0178  8C C0			     Mov   Ax,Es
-    378	017A  8E D8			     Mov   Ds,Ax
-    379	017C  8B 7E 0C			     Mov   Di,12[Bp]
-    380	017F  8B 46 0E			     Mov   Ax,14[Bp]
-    381	0182  8E C0			     Mov   Es,Ax
-    382	0184  33 C9			     Xor   Cx,Cx
-    383	0186  8A 0E 0080		     Mov   Cl,Byte Ptr Ds:[LongLC]
-    384	018A  BE 0082			     Mov   Si,2[LongLC]
-*Warning* proy.ASM(277)	[Constant] assumed to mean immediate constant
-    385	018D  F3> A4			     Rep   Movsb
-    386					     ListPop <Bp, Bx, Si, Di, Es>
-2   387	018F  5D				     Pop Bp
-2   388	0190  5B				     Pop Bx
-2   389	0191  5E				     Pop Si
-2   390	0192  5F				     Pop Di
-2   391	0193  07				     Pop Es
-    392	0194  C2 000E			     Ret   14
-    393	0197			     GetCommanderLine EndP
-    394
-    395	0197			     Inicio:
-    396	0197  B8 0000s			     Mov   Ax,Seg LineCommand
-    397	019A  50			     Push  Ax
-    398	019B  B8 031Br			     Lea   Ax,LineCommand
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 8
+    368	0179				     salir:
+    369	0179  C3				     ret
+    370
+    371	017A			     sumadorC endp
+    372
+    373	017A			     busqueda proc near
+    374	017A  59			     pop cx
+    375	017B  58			     pop ax
+    376	017C  51			     push cx
+    377	017D  8A C4			     mov al, ah
+    378	017F  32 E4			     xor ah, ah
+    379	0181  BB 0309r			     lea bx, paleta
+    380	0184  D7			     xlat
+    381	0185  A2 0621r			     mov ColorCommand, al
+    382	0188  C3			     ret
+    383	0189			     endP
+    384
+    385	0189			     abrirArchivo proc
+    386	0189  B4 3D			     mov ah, 3Dh
+    387	018B  B0 02			     mov al, 02h
+    388	018D  BA 0001r			     mov dx, offset filename
+    389	0190  CD 21			     int 21h
+    390	0192  A3 0319r			     mov [fileH], ax
+    391	0195  C3			     ret
+    392	0196			     endp abrirArchivo
+    393
+    394	0196			     leerH proc
+    395	0196  B4 3F			     mov ah,3fh
+    396	0198  8B 1E 0319r		     mov bx,[fileH]
+    397	019C  B9 0076			     mov cx,118
+    398	019F  BA 031Br			     mov dx,offset Header
+    399	01A2  CD 21			     int 21h
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 8
 proy.ASM
 
 
 
-    399	019E  50			     Push  Ax
-    400	019F  E8 FFCF			     Call  GetCommanderLine
-    401
-    402	01A2  B8 0000s			     mov ax, datos
-    403	01A5  8E D8			     mov ds, ax
-    404	01A7  06			     push es
-    405	01A8  8E C0			     mov es, ax
-    406
-    407					     comparar LineCommand, var1
-1   408	01AA  B9 0002			     mov cx, 2
-1   409	01AD  BF 031Br			     lea di, LineCommand
-1   410	01B0  BE 0592r			     lea si, var1
-1   411	01B3  F3> A6			     rep cmpsb
-    412	01B5  74 27			     jz	ayuda
+    400
+    401	01A4  50			     push ax
+    402	01A5  8A 26 032Er		     mov ah, [Header]+19
+    403	01A9  A0 032Dr			     mov al, [Header]+18
+    404	01AC  A3 0722r			     mov ancho,	ax
+    405
+    406	01AF  8A 26 0332r		     mov ah, [Header]+23
+    407	01B3  A0 0331r			     mov al, [Header]+22
+    408	01B6  A3 0724r			     mov largo,	ax
+    409	01B9  58			     pop ax
+    410
+    411	01BA  C3			     ret
+    412	01BB			     endp leerH
     413
-    414					     comparar LineCommand, var2
-1   415	01B7  B9 0002			     mov cx, 2
-1   416	01BA  BF 031Br			     lea di, LineCommand
-1   417	01BD  BE 0594r			     lea si, var2
-1   418	01C0  F3> A6			     rep cmpsb
-    419	01C2  74 20			     jz	encriptar
-    420
-    421					     comparar LineCommand, var3
-1   422	01C4  B9 0002			     mov cx, 2
-1   423	01C7  BF 031Br			     lea di, LineCommand
-1   424	01CA  BE 0596r			     lea si, var3
-1   425	01CD  F3> A6			     rep cmpsb
-    426	01CF  74 16			     jz	desencriptar
-    427
-    428					     comparar LineCommand, var4
-1   429	01D1  B9 0002			     mov cx, 2
-1   430	01D4  BF 031Br			     lea di, LineCommand
-1   431	01D7  BE 0598r			     lea si, var4
-1   432	01DA  F3> A6			     rep cmpsb
-    433	01DC  74 0C			     jz	mostrarI
-    434
-    435	01DE				     ayuda:
-    436	01DE  E8 FE1F				     call imprimir
-    437	01E1  EB 0C 90				     jmp final
-    438
-    439	01E4				     encriptar:
-    440	01E4  EB 09 90				     jmp final
-    441
-    442	01E7				     desencriptar:
-    443	01E7  EB 06 90				     jmp final
-    444
-    445	01EA				     mostrarI:
-    446	01EA  BE 0320r				     lea si, LineCommand+5
-    447	01ED  8A 04				     mov al, byte ptr[si]
-    448
-    449
-    450					     ; call abrirArchivo
-    451					     ; call leerH
-    452					     ; call pintar
-    453					     ; call sumadorC
-    454					     ; call ubicador
-    455
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 9
+    414	01BB			     pintar proc
+    415	01BB  B4 00			     mov ah, 00h
+    416	01BD  B0 12			     mov al, 12h
+    417	01BF  CD 10			     int 10h
+    418	01C1  BA 01E0			     mov dx, 1E0H
+    419	01C4  52			     push dx
+    420	01C5			     ploop:
+    421
+    422	01C5  B8 3F00			     mov ax,3f00h
+    423	01C8  8B 1E 0319r		     mov bx,[fileH]
+    424	01CC  B9 0140			     mov cx,140h
+    425	01CF  BA 0391r			     mov dx,offset Header2
+    426	01D2  CD 21			     int 21h
+    427	01D4  BE 0391r			     lea si, [Header2]
+    428	01D7  5A			     pop dx
+    429	01D8  83 FA 00			     cmp dx, 0
+    430	01DB  74 49			     jz	re
+    431	01DD  B9 0000			     mov cx, 0
+    432	01E0				     sloop:
+    433	01E0  81 F9 0280			     cmp cx, 280h
+    434	01E4  74 3C				     jz	floop
+    435	01E6  8A 04				     mov al, byte ptr [si]
+    436	01E8  8A 24				     mov ah, byte ptr [si]
+    437	01EA  46				     inc si
+    438	01EB  24 0F				     and al, 00001111b
+    439	01ED  80 E4 F0				     and ah, 11110000b
+    440	01F0  D0 C4 D0 C4 D0 C4	D0+		     rol Ah, 4
+    441	      C4
+    442	01F8  8B D8				     mov bx, ax
+    443	01FA  53				     push bx
+    444						     ;---------
+    445	01FB  33 C0				     xor ax,ax
+    446						     ppila
+1   447	01FD  51			     push cx
+1   448	01FE  53			     push bx
+1   449	01FF  E8 FF78			     call busqueda
+1   450	0202  59			     pop cx
+    451						     pintarM
+1   452	0203  B4 0C			     mov ah, 0Ch
+1   453	0205  A0 0621r			     mov al, ColorCommand; color
+1   454	0208  B7 00			     mov bh, 0
+1   455	020A  CD 10			     int 10h
+    456						     ;---------
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 9
 proy.ASM
 
 
 
-    456
-    457	01EF			     final:
-    458	01EF  B8 4C00			     mov ax, 4C00h
-    459	01F2  CD 21			     int 21h
-    460	01F4			     Codigo EndS
-    461					     End Inicio
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 10
+    457	020C  41				     inc cx
+    458	020D  5B				     pop bx
+    459	020E  8A FB				     mov bh, bl
+    460						     ppila
+1   461	0210  51			     push cx
+1   462	0211  53			     push bx
+1   463	0212  E8 FF65			     call busqueda
+1   464	0215  59			     pop cx
+    465						     pintarM
+1   466	0216  B4 0C			     mov ah, 0Ch
+1   467	0218  A0 0621r			     mov al, ColorCommand; color
+1   468	021B  B7 00			     mov bh, 0
+1   469	021D  CD 10			     int 10h
+    470	021F  41				     inc cx
+    471						     ;---------
+    472	0220  EB BE				     jmp sloop
+    473	0222			     floop:
+    474	0222  4A			     dec dx
+    475	0223  52			     push dx
+    476	0224  EB 9F			     jmp ploop
+    477
+    478	0226			     re:
+    479	0226  B4 01			     mov ah,1
+    480	0228  CD 21			     int 21h
+    481
+    482	022A  B4 00			     mov ah, 0
+    483	022C  B0 02			     mov al, 2
+    484	022E  CD 10			     int 10h
+    485
+    486	0230  B4 3E			     mov ah,3eh
+    487	0232  CD 21			     int 21h
+    488
+    489	0234  C3			     ret
+    490	0235			     endp pintar
+    491
+    492	0235			     GetCommanderLine Proc Near
+    493	      =0080			     LongLC    EQU   80h
+    494					     ListPush  <Es, Di,	Si, Cx,	Bp>
+2   495	0235  06				     Push Es
+2   496	0236  57				     Push Di
+2   497	0237  56				     Push Si
+2   498	0238  51				     Push Cx
+2   499	0239  55				     Push Bp
+    500	023A  8B EC			     Mov   Bp,Sp
+    501	023C  8C C0			     Mov   Ax,Es
+    502	023E  8E D8			     Mov   Ds,Ax
+    503	0240  8B 7E 0C			     Mov   Di,12[Bp]
+    504	0243  8B 46 0E			     Mov   Ax,14[Bp]
+    505	0246  8E C0			     Mov   Es,Ax
+    506	0248  33 C9			     Xor   Cx,Cx
+    507	024A  8A 0E 0080		     Mov   Cl,Byte Ptr Ds:[LongLC]
+    508	024E  BE 0082			     Mov   Si,2[LongLC]
+*Warning* proy.ASM(393)	[Constant] assumed to mean immediate constant
+    509	0251  F3> A4			     Rep   Movsb
+    510					     ListPop <Bp, Bx, Si, Di, Es>
+2   511	0253  5D				     Pop Bp
+2   512	0254  5B				     Pop Bx
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 10
+proy.ASM
+
+
+
+2   513	0255  5E				     Pop Si
+2   514	0256  5F				     Pop Di
+2   515	0257  07				     Pop Es
+    516	0258  C2 000E			     Ret   14
+    517	025B			     GetCommanderLine EndP
+    518
+    519	025B			     Inicio:
+    520	025B  B8 0000s			     Mov   Ax,Seg LineCommand
+    521	025E  50			     Push  Ax
+    522	025F  B8 0622r			     Lea   Ax,LineCommand
+    523	0262  50			     Push  Ax
+    524	0263  E8 FFCF			     Call  GetCommanderLine
+    525
+    526	0266  B8 0000s			     mov ax, datos
+    527	0269  8E D8			     mov ds, ax
+    528	026B  06			     push es
+    529	026C  8E C0			     mov es, ax
+    530
+    531					     comparar LineCommand, var1
+1   532	026E  B9 0002			     mov cx, 2
+1   533	0271  BF 0622r			     lea di, LineCommand
+1   534	0274  BE 0899r			     lea si, var1
+1   535	0277  F3> A6			     rep cmpsb
+    536	0279  74 28			     jz	ayuda
+    537
+    538					     comparar LineCommand, var2
+1   539	027B  B9 0002			     mov cx, 2
+1   540	027E  BF 0622r			     lea di, LineCommand
+1   541	0281  BE 089Br			     lea si, var2
+1   542	0284  F3> A6			     rep cmpsb
+    543	0286  74 21			     jz	encriptar
+    544
+    545					     comparar LineCommand, var3
+1   546	0288  B9 0002			     mov cx, 2
+1   547	028B  BF 0622r			     lea di, LineCommand
+1   548	028E  BE 089Dr			     lea si, var3
+1   549	0291  F3> A6			     rep cmpsb
+    550	0293  74 6D			     jz	desencriptar
+    551
+    552					     comparar LineCommand, var4
+1   553	0295  B9 0002			     mov cx, 2
+1   554	0298  BF 0622r			     lea di, LineCommand
+1   555	029B  BE 089Fr			     lea si, var4
+1   556	029E  F3> A6			     rep cmpsb
+    557	02A0  E8 0099			     call mostrarI
+    558
+    559	02A3				     ayuda:
+    560	02A3  E8 FD5A				     call imprimir
+    561	02A6  E9 00B4				     jmp final
+    562
+    563	02A9				     encriptar:
+    564	02A9  BE 0628r				     lea si, LineCommand+6
+    565	02AC  8A 04				     mov al, byte ptr [si]
+    566	02AE  BF 020Ar				     lea di, texto
+    567	02B1  33 C9				     xor cx,cx
+    568	02B3					     cTexto:
+    569	02B3  80 3C 20					     cmp byte ptr [si],	20h
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 11
+proy.ASM
+
+
+
+    570	02B6  74 09					     jz	sTexto
+    571	02B8  8A 04					     mov al, byte ptr [si]
+    572	02BA  88 05					     mov byte ptr [di],	al
+    573	02BC  46					     inc si
+    574	02BD  47					     inc di
+    575	02BE  41					     inc cx
+    576	02BF  EB F2					     jmp cTexto
+    577
+    578	02C1					     sTexto:
+    579	02C1  C6 05 24					     mov byte ptr [di],	24h
+    580	02C4  41					     inc cx
+    581	02C5  89 0E 0208r				     mov extension, cx
+    582	02C9  46					     inc si
+    583	02CA  46					     inc si
+    584	02CB  46					     inc si
+    585	02CC  46					     inc si
+    586	02CD  BF 0101r					     lea di, clave
+    587	02D0						     cClave:
+    588	02D0  80 3C 20						     cmp byte ptr [si],	20h
+    589	02D3  74 08						     jz	saClave
+    590	02D5  8A 04						     mov al, byte ptr [si]
+    591	02D7  88 05						     mov byte ptr [di],	al
+    592	02D9  46						     inc si
+    593	02DA  47						     inc di
+    594	02DB  EB F3						     jmp cClave
+    595
+    596	02DD					     saClave:
+    597	02DD  C6 05 24					     mov byte ptr [di],	24h
+    598	02E0  46					     inc si
+    599	02E1  46					     inc si
+    600	02E2  46					     inc si
+    601	02E3  46					     inc si
+    602	02E4  46					     inc si
+    603	02E5  46					     inc si
+    604	02E6  BF 0001r					     lea di, filename
+    605	02E9						     cImag:
+    606	02E9  80 3C 0D						     cmp byte ptr [si],	0Dh
+    607	02EC  74 08						     jz	salidaLector
+    608	02EE  8A 04						     mov al, byte ptr [si]
+    609	02F0  88 05						     mov byte ptr [di],	al
+    610	02F2  46						     inc si
+    611	02F3  47						     inc di
+    612	02F4  EB F3						     jmp cImag
+    613
+    614	02F6					     salidaLector:
+    615	02F6  E8 FE90					     call abrirArchivo
+    616	02F9  E8 FE47					     call sumadorC
+    617	02FC  E8 FDE6					     call ubicador
+    618	02FF  EB 5C 90					     jmp final
+    619
+    620	0302				     desencriptar:
+    621	0302  BE 0628r				     lea si, LineCommand+6
+    622	0305  BF 0101r				     lea di, clave
+    623	0308  8A 04				     mov al, byte ptr [si]
+    624	030A					     dclave:
+    625	030A  80 3C 20					     cmp byte ptr [si],	20h
+    626	030D  74 08					     jz	sadClave
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 12
+proy.ASM
+
+
+
+    627	030F  8A 04					     mov al, byte ptr [si]
+    628	0311  88 05					     mov byte ptr [di],	al
+    629	0313  46					     inc si
+    630	0314  47					     inc di
+    631	0315  EB F3					     jmp dClave
+    632
+    633	0317					     sadClave:
+    634	0317  C6 05 24					     mov byte ptr [di],	24h
+    635	031A  46					     inc si
+    636	031B  46					     inc si
+    637	031C  46					     inc si
+    638	031D  46					     inc si
+    639	031E  46					     inc si
+    640	031F  46					     inc si
+    641	0320  BF 0001r					     lea di, filename
+    642	0323						     dciImag:
+    643	0323  80 3C 0D						     cmp byte ptr [si],	0Dh
+    644	0326  74 08						     jz	salidaDesenciptar
+    645	0328  8A 04						     mov al, byte ptr [si]
+    646	032A  88 05						     mov byte ptr [di],	al
+    647	032C  46						     inc si
+    648	032D  47						     inc di
+    649	032E  EB F3						     jmp dciImag
+    650
+    651	0330					     salidaDesenciptar:
+    652	0330  E8 FE56					     call abrirArchivo
+    653	0333  E8 FE0D					     call sumadorC
+    654	0336  E8 FD1A					     call ubicadorD
+    655	0339  EB 22 90					     jmp final
+    656
+    657	033C			     mostrarI proc near
+    658	033C  BE 0627r			     lea si, LineCommand+5
+    659	033F  BF 0001r			     lea di, filename
+    660	0342  8A 04			     mov al, byte ptr [si]
+    661	0344				     ciMostrar:
+    662	0344  80 3C 0D				     cmp byte ptr [si],	0Dh
+    663	0347  74 08				     jz	salidaMostrar
+    664	0349  8A 04				     mov al, byte ptr [si]
+    665	034B  88 05				     mov byte ptr [di],	al
+    666	034D  46				     inc si
+    667	034E  47				     inc di
+    668	034F  EB F3				     jmp ciMostrar
+    669
+    670	0351			     mostrarI endp
+    671
+    672	0351			     salidaMostrar:
+    673	0351  E8 FE35			     call abrirArchivo
+    674	0354  E8 FE3F			     call leerH
+    675	0357  E8 FE61			     call pintar
+    676	035A  EB 01 90			     jmp final
+    677
+    678	035D			     final:
+    679	035D  B8 4C00			     mov ax, 4C00h
+    680	0360  CD 21			     int 21h
+    681	0362			     Codigo EndS
+    682					     End Inicio
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 13
 Symbol Table
 
 
@@ -513,78 +749,110 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "04/19/19"
+??DATE				  Text	 "05/12/19"
 ??FILENAME			  Text	 "proy	  "
-??TIME				  Text	 "24:11:15"
+??TIME				  Text	 "23:16:53"
 ??VERSION			  Number 040A
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CODIGO
 @FILENAME			  Text	 PROY
 @WORDSIZE			  Text	 2
-ABRIRARCHIVO			  Near	 CODIGO:00C4
-ANCHO				  Word	 DATOS:041B
-AYUDA				  Near	 CODIGO:01DE
-BCOLUMNA			  Near	 CODIGO:006E
-BFILA				  Near	 CODIGO:004A
-BUSQUEDA			  Near	 CODIGO:00B5
-CICLO				  Near	 CODIGO:0090
+ABRIRARCHIVO			  Near	 CODIGO:0189
+ANCHO				  Word	 DATOS:0722
+AYUDA				  Near	 CODIGO:02A3
+BCOLUMNA			  Near	 CODIGO:012D
+BCOLUMNAD			  Near	 CODIGO:009B
+BFILA				  Near	 CODIGO:0109
+BFILAD				  Near	 CODIGO:0077
+BUSQUEDA			  Near	 CODIGO:017A
+CCLAVE				  Near	 CODIGO:02D0
+CE				  Byte	 DATOS:0000
+CICLO				  Near	 CODIGO:0155
+CICLO1				  Near	 CODIGO:00AD
+CICLO2				  Near	 CODIGO:00C1
+CICLODES			  Near	 CODIGO:001D
+CICLOENC			  Near	 CODIGO:0030
 CICLOSUMA			  Near	 CODIGO:000D
-CLAVE				  Byte	 DATOS:0001
-COLORCOMMAND			  Byte	 DATOS:031A
-COLUMNA				  Word	 DATOS:0010
-DESENCRIPTAR			  Near	 CODIGO:01E7
-ENCRIPTAR			  Near	 CODIGO:01E4
-FCICLO				  Near	 CODIGO:00A1
-FILA				  Word	 DATOS:000E
-FILEH				  Word	 DATOS:0022
-FILENAME			  Byte	 DATOS:0000
-FINAL				  Near	 CODIGO:01EF
-FLOOP				  Near	 CODIGO:015D
-GETCOMMANDERLINE		  Near	 CODIGO:0171
-HEADER				  Byte	 DATOS:0024
-HEADER2				  Byte	 DATOS:009A
+CIMAG				  Near	 CODIGO:02E9
+CIMOSTRAR			  Near	 CODIGO:0344
+CLAVE				  Byte	 DATOS:0101
+COLORCOMMAND			  Byte	 DATOS:0621
+COLUMNA				  Word	 DATOS:0206
+CTEXTO				  Near	 CODIGO:02B3
+DCIIMAG				  Near	 CODIGO:0323
+DCLAVE				  Near	 CODIGO:030A
+DESENCRIPTAR			  Near	 CODIGO:0302
+DESENCRIPTARPAL			  Near	 CODIGO:001A
+ENCRIPTAR			  Near	 CODIGO:02A9
+ENCRIPTARPAL			  Near	 CODIGO:002D
+ESCRIBIR			  Near	 CODIGO:0040
+EXTENSION			  Word	 DATOS:0208
+FCICLO				  Near	 CODIGO:0166
+FILA				  Word	 DATOS:0204
+FILEH				  Word	 DATOS:0319
+FILENAME			  Byte	 DATOS:0001
+FINAL				  Near	 CODIGO:035D
+FLOOP				  Near	 CODIGO:0222
+GETCOMMANDERLINE		  Near	 CODIGO:0235
+HEADER				  Byte	 DATOS:031B
+HEADER2				  Byte	 DATOS:0391
+HEADER3				  Byte	 DATOS:0611
 IMPRIMIR			  Near	 CODIGO:0000
-INICIO				  Near	 CODIGO:0197
-LARGO				  Word	 DATOS:041D
-LCLAVE				  Word	 DATOS:000C
-LEERH				  Near	 CODIGO:00D1
-LINECOMMAND			  Byte	 DATOS:031B
-LONGLC				  Number 0080
-MOSTRARI			  Near	 CODIGO:01EA
-MSG1				  Byte	 DATOS:041F
-MSG2				  Byte	 DATOS:0446
-MSG3				  Byte	 DATOS:0490
-MSG4				  Byte	 DATOS:049F
-MSG5				  Byte	 DATOS:04E6
-MSG6				  Byte	 DATOS:0520
-MSG7				  Byte	 DATOS:0562
-PALETA				  Byte	 DATOS:0012
-PINTAR				  Near	 CODIGO:00F6
-PLOOP				  Near	 CODIGO:0100
-PROCESOC			  Near	 CODIGO:0065
-RE				  Near	 CODIGO:0161
-SALIDAU				  Near	 CODIGO:007A
-SALIR				  Near	 CODIGO:00B4
-SALIRSUMAD			  Near	 CODIGO:0016
-SCICLO				  Near	 CODIGO:00A8
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 11
+INICIO				  Near	 CODIGO:025B
+LARGO				  Word	 DATOS:0724
+LCLAVE				  Word	 DATOS:0202
+LEERH				  Near	 CODIGO:0196
+LINECOMMAND			  Byte	 DATOS:0622
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 14
 Symbol Table
 
 
 
-SCLAVE				  Word	 DATOS:000A
-SLOOP				  Near	 CODIGO:011B
+LONGLC				  Number 0080
+MOSTRARI			  Near	 CODIGO:033C
+MSG1				  Byte	 DATOS:0726
+MSG2				  Byte	 DATOS:074D
+MSG3				  Byte	 DATOS:0797
+MSG4				  Byte	 DATOS:07A6
+MSG5				  Byte	 DATOS:07ED
+MSG6				  Byte	 DATOS:0827
+MSG7				  Byte	 DATOS:0869
+PALETA				  Byte	 DATOS:0309
+PINTAR				  Near	 CODIGO:01BB
+PLOOP				  Near	 CODIGO:01C5
+PROCESOC			  Near	 CODIGO:0124
+PROCESOCD			  Near	 CODIGO:0092
+RE				  Near	 CODIGO:0226
+SACLAVE				  Near	 CODIGO:02DD
+SADCLAVE			  Near	 CODIGO:0317
+SALIDAD				  Near	 CODIGO:00D6
+SALIDADES			  Near	 CODIGO:002C
+SALIDADESENCIPTAR		  Near	 CODIGO:0330
+SALIDAENC			  Near	 CODIGO:003F
+SALIDALECTOR			  Near	 CODIGO:02F6
+SALIDAMOSTRAR			  Near	 CODIGO:0351
+SALIDAU				  Near	 CODIGO:0139
+SALIDAUD			  Near	 CODIGO:00A7
+SALIR				  Near	 CODIGO:0179
+SALIRSUMAD			  Near	 CODIGO:0016
+SCICLO				  Near	 CODIGO:016D
+SCLAVE				  Word	 DATOS:0200
+SLOOP				  Near	 CODIGO:01E0
+STEXTO				  Near	 CODIGO:02C1
 SUMAD				  Near	 CODIGO:0008
-SUMADORC			  Near	 CODIGO:007E
-UBICADOR			  Near	 CODIGO:001A
-VAR1				  Byte	 DATOS:0592
-VAR2				  Byte	 DATOS:0594
-VAR3				  Byte	 DATOS:0596
-VAR4				  Byte	 DATOS:0598
+SUMADORC			  Near	 CODIGO:0143
+TEXTO				  Byte	 DATOS:020A
+UBICADOR			  Near	 CODIGO:00E5
+UBICADORD			  Near	 CODIGO:0053
+VAR1				  Byte	 DATOS:0899
+VAR2				  Byte	 DATOS:089B
+VAR3				  Byte	 DATOS:089D
+VAR4				  Byte	 DATOS:089F
 
 Macro Name
 
 COMPARAR
+IMPRIMIRP
 LISTPOP
 LISTPUSH
 PINTARM
@@ -592,13 +860,13 @@ PPILA
 
 Groups & Segments		  Bit Size Align  Combine Class
 
-CODIGO				  16  01F4 Para	  none
-DATOS				  16  059C Para	  none
+CODIGO				  16  0362 Para	  none
+DATOS				  16  08A3 Para	  none
 PILA				  16  FFFF Para	  none
-Turbo Assembler	 Version 4.1	    04/19/19 24:11:16	    Page 12
+Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 15
 Error Summary
 
 
 
-*Warning* proy.ASM(277)	[Constant] assumed to mean immediate constant
+*Warning* proy.ASM(393)	[Constant] assumed to mean immediate constant
 

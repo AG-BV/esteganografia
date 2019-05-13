@@ -30,3 +30,9 @@ comparar Macro line, var
 	lea si, var
 	rep cmpsb
 endM
+
+imprimirP macro msj
+	mov ah, 09h
+	lea dx, msj
+	int 21h
+endM
