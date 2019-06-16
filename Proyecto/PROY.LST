@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 1
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 1
 proy.ASM
 
 
@@ -60,7 +60,7 @@ proy.ASM
      55	0204  ????			     fila dw ?
      56	0206  ????			     columna dw	?
      57	0208  ????			     extension dw ?
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 2
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 2
 proy.ASM
 
 
@@ -122,7 +122,7 @@ proy.ASM
     112	      6F 6E 20 6C 61 20	22+
     113	      63 6C 61 76 65 22	20+
     114	      65 6E 20 65 6C 20	62+
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 3
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 3
 proy.ASM
 
 
@@ -184,7 +184,7 @@ proy.ASM
     169	001A			     desencriptarPal proc near
     170	001A  BE 020Ar			     lea si, texto
     171	001D				     cicloDes:
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 4
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 4
 proy.ASM
 
 
@@ -246,7 +246,7 @@ proy.ASM
     226	007D  51				     push cx
     227	007E  B4 3F				     mov ah,3fh
     228	0080  8B 1E 0319r			     mov bx,[fileH]
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 5
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 5
 proy.ASM
 
 
@@ -308,7 +308,7 @@ proy.ASM
 1   283	00DF  BA 020Ar			     lea dx, texto
 1   284	00E2  CD 21			     int 21h
     285	00E4  C3				     ret
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 6
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 6
 proy.ASM
 
 
@@ -370,7 +370,7 @@ proy.ASM
     340	0148  8A 04			     mov al, byte ptr [si]
     341	014A  46			     inc si
     342	014B  41			     inc cx
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 7
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 7
 proy.ASM
 
 
@@ -432,7 +432,7 @@ proy.ASM
     397	019C  B9 0076			     mov cx,118
     398	019F  BA 031Br			     mov dx,offset Header
     399	01A2  CD 21			     int 21h
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 8
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 8
 proy.ASM
 
 
@@ -494,7 +494,7 @@ proy.ASM
 1   454	0208  B7 00			     mov bh, 0
 1   455	020A  CD 10			     int 10h
     456						     ;---------
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 9
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 9
 proy.ASM
 
 
@@ -556,7 +556,7 @@ proy.ASM
     510					     ListPop <Bp, Bx, Si, Di, Es>
 2   511	0253  5D				     Pop Bp
 2   512	0254  5B				     Pop Bx
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 10
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 10
 proy.ASM
 
 
@@ -618,7 +618,7 @@ proy.ASM
     567	02B1  33 C9				     xor cx,cx
     568	02B3					     cTexto:
     569	02B3  80 3C 20					     cmp byte ptr [si],	20h
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 11
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 11
 proy.ASM
 
 
@@ -680,7 +680,7 @@ proy.ASM
     624	030A					     dclave:
     625	030A  80 3C 20					     cmp byte ptr [si],	20h
     626	030D  74 08					     jz	sadClave
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 12
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 12
 proy.ASM
 
 
@@ -741,7 +741,7 @@ proy.ASM
     680	0360  CD 21			     int 21h
     681	0362			     Codigo EndS
     682					     End Inicio
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 13
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 13
 Symbol Table
 
 
@@ -751,7 +751,7 @@ Symbol Name			  Type	 Value
 
 ??DATE				  Text	 "05/12/19"
 ??FILENAME			  Text	 "proy	  "
-??TIME				  Text	 "23:16:53"
+??TIME				  Text	 "23:24:54"
 ??VERSION			  Number 040A
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CODIGO
@@ -803,7 +803,7 @@ LARGO				  Word	 DATOS:0724
 LCLAVE				  Word	 DATOS:0202
 LEERH				  Near	 CODIGO:0196
 LINECOMMAND			  Byte	 DATOS:0622
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 14
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 14
 Symbol Table
 
 
@@ -863,7 +863,7 @@ Groups & Segments		  Bit Size Align  Combine Class
 CODIGO				  16  0362 Para	  none
 DATOS				  16  08A3 Para	  none
 PILA				  16  FFFF Para	  none
-Turbo Assembler	 Version 4.1	    05/12/19 23:16:54	    Page 15
+Turbo Assembler	 Version 4.1	    05/12/19 23:24:55	    Page 15
 Error Summary
 
 
